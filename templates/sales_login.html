@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="min-h-[75vh] flex items-center justify-center px-4 py-10">
+
+    <div class="w-full max-w-md">
+
+        <!-- Login Card -->
+        <div class="bg-white/95 backdrop-blur-xl border border-gray-200 rounded-3xl shadow-2xl overflow-hidden">
+
+            <!-- Top Gradient -->
+            <div class="h-2 bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600"></div>
+
+            <div class="p-8 md:p-10">
+
+                <!-- Heading -->
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl font-extrabold text-gray-800 tracking-tight">
+                        Sales Login
+                    </h2>
+
+                    <p class="text-gray-500 text-sm mt-2">
+                        Access your Atlancia Worldwide CRM dashboard
+                    </p>
+                </div>
+
+                <!-- Form -->
+                <form method="POST" class="space-y-5">
+
+                    <!-- Username -->
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            Username
+                        </label>
+
+                        <div class="relative">
+                            <input 
+                                type="text" 
+                                name="username" 
+                                placeholder="Enter your username"
+                                class="w-full pl-12 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all bg-gray-50 hover:bg-white"
+                                required
+                            >
+
+                            <div class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M5.121 17.804A9 9 0 1118.88 17.8M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Password -->
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            Password
+                        </label>
+
+                        <div class="relative">
+                            <input 
+                                type="password" 
+                                name="password" 
+                                placeholder="Enter your password"
+                                class="w-full pl-12 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all bg-gray-50 hover:bg-white"
+                                required
+                            >
+
+                            <div class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2h-1V9a5 5 0 00-10 0v2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Login Button -->
+                    <button 
+                        type="submit"
+                        class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3.5 rounded-xl font-semibold text-lg shadow-lg hover:shadow-blue-200 hover:scale-[1.01] transition-all duration-300"
+                    >
+                        Login to Dashboard
+                    </button>
+
+                </form>
+
+                <!-- Divider -->
+                <div class="flex items-center my-7">
+                    <div class="flex-1 border-t border-gray-200"></div>
+                    <span class="px-4 text-sm text-gray-400">Secure CRM Access</span>
+                    <div class="flex-1 border-t border-gray-200"></div>
+                </div>
+
+                <!-- Admin Login -->
+                <div class="text-center">
+                    <a 
+                        href="/admin/login"
+                        class="inline-flex items-center gap-2 text-blue-600 font-semibold hover:text-blue-700 transition-colors"
+                    >
+                        Admin Login
+                    </a>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

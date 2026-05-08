@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+  .history-container {
+    max-width: 1100px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+    font-family: system-ui, -apple-system, sans-serif;
+  }
+  .page-title {
+    font-size: 1.75rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: #111827;
+  }
+  .card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .card-header {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: #374151;
+  }
+  .table-wrapper {
+    overflow-x: auto;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+  }
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+  }
+  .data-table th,
+  .data-table td {
+    padding: 0.875rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  .data-table th {
+    background: #f9fafb;
+    font-weight: 600;
+    color: #4b5563;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+  }
+  .data-table tbody tr:hover {
+    background-color: #f8fafc;
+  }
+  .data-table tbody tr:last-child td {
+    border-bottom: none;
+  }
+  .empty-state {
+    text-align: center;
+    padding: 2rem;
+    color: #6b7280;
+    font-style: italic;
+  }
+  .badge {
+    display: inline-block;
+    padding: 0.25rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+  .badge-paid {
+    background: #dcfce7;
+    color: #166534;
+  }
+  .badge-pending {
+    background: #fef3c7;
+    color: #92400e;
+  }
+  .btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.2rem;
+    background: #f3f4f6;
+    color: #374151;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.2s;
+    margin-top: 1rem;
+  }
+  .btn-back:hover {
+    background: #e5e7eb;
+    transform: translateX(-2px);
+  }
+  @media (max-width: 640px) {
+    .history-container { padding: 0 0.75rem; }
+    .card { padding: 1rem; }
+    .data-table th, .data-table td { padding: 0.6rem; font-size: 0.85rem; }
+  }
+</style>
+
+<div class="history-container">
+  <h1 class="page-title">💰 My Commission & Salary History</h1>
+
+  <!-- Commissions Section -->
+  <div class="card">
+    <h2 class="card-header">✅ Paid Commissions</h2>
+    <div class="table-wrapper">
+      <table class="data-table">
+        <thead>
+          <tr>
+              <th>Client ID</th>
+              <th>Date</th>
+              <th>Client / Service</th>
+              <th>Total Amount</th>
+              <th>Commission %</th>
+              <th>Commission Paid</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in comm_history %}
+          <tr>
+            <td>
+                <span style="
+                    background:#eff6ff;
+                    color:#1d4ed8;
+                    padding:4px 10px;
+                    border-radius:999px;
+                    font-size:12px;
+                    font-weight:600;
+                ">
+                    {{ c.custom_client_id }}
+                </span>
+            </td>
+
+            <td>{{ c.created_at[:10] }}</td>
+
+            <td>
+                {{ c.service_selected }}
+                <br>
+                <small style="color:#6b7280;">
+                    {{ c.client_region }}
+                </small>
+            </td>
+
+            <td>₹{{ c.total_amount }}</td>
+
+            <td>{{ c.commission_percent }}%</td>
+
+            <td>
+                <strong>₹{{ c.commission_amount }}</strong>
+            </td>
+        </tr>
+          {% else %}
+          <tr>
+            <td colspan="5" class="empty-state">No paid commissions yet.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Salary Section -->
+  <div class="card">
+    <h2 class="card-header">💵 Salary Records</h2>
+    <div class="table-wrapper">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Month</th>
+            <th>Base Salary</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for s in sal_history %}
+          <tr>
+            <td>{{ s.month or s.created_at[:7] }}</td>
+            <td>₹{{ s.amount }}</td>
+            <td>
+              {% if s.is_paid %}
+                <span class="badge badge-paid">Paid</span>
+              {% else %}
+                <span class="badge badge-pending">Pending</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="3" class="empty-state">No salary records yet.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <a href="{{ url_for('sales_dashboard') }}" class="btn-back">← Back to Dashboard</a>
+</div>
+
+{% endblock %}

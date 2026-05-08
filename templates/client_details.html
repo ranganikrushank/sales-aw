@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+  :root {
+    --cd-bg: #f8fafc;
+    --cd-card: #ffffff;
+    --cd-primary: #2563eb;
+    --cd-primary-light: #eff6ff;
+    --cd-text: #0f172a;
+    --cd-text-muted: #64748b;
+    --cd-border: #e2e8f0;
+    --cd-success: #10b981;
+    --cd-success-bg: #dcfce7;
+    --cd-warning: #f59e0b;
+    --cd-warning-bg: #fef3c7;
+    --cd-danger: #ef4444;
+    --cd-danger-bg: #fee2e2;
+    --cd-radius: 14px;
+    --cd-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.05);
+    --cd-transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .cd-wrapper {
+    background: var(--cd-bg);
+    min-height: 100vh;
+    padding: 2rem;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    color: var(--cd-text);
+    box-sizing: border-box;
+  }
+
+  .cd-header { margin-bottom: 2rem; }
+  .cd-header h1 { margin: 0.5rem 0 0.25rem; font-size: 1.75rem; font-weight: 800; letter-spacing: -0.025em; }
+  .cd-header .subtitle { margin: 0; color: var(--cd-text-muted); font-size: 0.95rem; }
+
+  .cd-back-btn {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    padding: 0.6rem 1rem;
+    background: var(--cd-card);
+    border: 1px solid var(--cd-border);
+    border-radius: 999px;
+    color: var(--cd-text);
+    text-decoration: none;
+    font-weight: 600; font-size: 0.875rem;
+    transition: var(--cd-transition);
+  }
+  .cd-back-btn:hover { background: #f1f5f9; border-color: #cbd5e1; transform: translateX(-2px); }
+
+  .cd-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .cd-stat-card {
+    background: var(--cd-card);
+    padding: 1.25rem;
+    border-radius: var(--cd-radius);
+    box-shadow: var(--cd-shadow);
+    border: 1px solid var(--cd-border);
+    transition: var(--cd-transition);
+  }
+  .cd-stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 12px -2px rgba(0,0,0,0.08); }
+  .cd-stat-label { display: block; font-size: 0.8rem; color: var(--cd-text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+  .cd-stat-value { font-size: 1.75rem; font-weight: 800; color: var(--cd-text); font-family: 'JetBrains Mono', ui-monospace, monospace; }
+  .cd-stat-value.highlight { color: var(--cd-primary); }
+  .cd-stat-value.warning { color: var(--cd-warning); }
+  .cd-stat-value.success { color: var(--cd-success); }
+
+  .cd-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  @media (max-width: 900px) { .cd-layout { grid-template-columns: 1fr; } }
+
+  .cd-card {
+    background: var(--cd-card);
+    border-radius: var(--cd-radius);
+    box-shadow: var(--cd-shadow);
+    border: 1px solid var(--cd-border);
+    overflow: hidden;
+  }
+  .cd-card-header { padding: 1.25rem; border-bottom: 1px solid var(--cd-border); background: #f8fafc; }
+  .cd-card-header h2 { margin: 0; font-size: 1.1rem; font-weight: 700; }
+  .cd-card-body { padding: 1.5rem; }
+
+  .cd-info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem 2rem; margin: 0; }
+  .cd-info-grid dt { font-size: 0.8rem; color: var(--cd-text-muted); font-weight: 600; margin: 0; }
+  .cd-info-grid dd { font-size: 0.95rem; font-weight: 600; margin: 0.25rem 0 0; color: var(--cd-text); line-height: 1.4; }
+  .cd-info-grid .full-width { grid-column: 1 / -1; }
+
+  .cd-services-wrap {
+    background: #f1f5f9;
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--cd-text-muted);
+    display: inline-block;
+    margin-top: 0.25rem;
+  }
+
+  .cd-badge {
+    display: inline-block;
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    margin-top: 0.25rem;
+  }
+  .cd-badge-success { background: var(--cd-success-bg); color: #065f46; }
+  .cd-badge-warning { background: var(--cd-warning-bg); color: #92400e; }
+  .cd-badge-danger { background: var(--cd-danger-bg); color: #991b1b; }
+  .cd-badge-primary { background: var(--cd-primary-light); color: var(--cd-primary); }
+
+  @media (max-width: 768px) {
+    .cd-wrapper { padding: 1rem; }
+    .cd-info-grid { grid-template-columns: 1fr; gap: 1rem; }
+  }
+</style>
+
+<div class="cd-wrapper">
+  <header class="cd-header">
+    <a href="/admin/dashboard" class="cd-back-btn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      Back to Dashboard
+    </a>
+    <h1>Converted Client Details</h1>
+    <p class="subtitle">Comprehensive overview of client info, billing, and commission tracking</p>
+  </header>
+
+  <!-- Financial Summary Cards -->
+  <div class="cd-stats-grid">
+    <div class="cd-stat-card">
+      <span class="cd-stat-label">Total Amount</span>
+      <span class="cd-stat-value highlight">₹{{ client.total_amount }}</span>
+    </div>
+    <div class="cd-stat-card">
+      <span class="cd-stat-label">Advance Paid</span>
+      <span class="cd-stat-value">₹{{ client.advance_payment }}</span>
+    </div>
+    <div class="cd-stat-card">
+      <span class="cd-stat-label">Remaining Balance</span>
+      <span class="cd-stat-value warning">₹{{ client.payment_left }}</span>
+    </div>
+    <div class="cd-stat-card">
+      <span class="cd-stat-label">Commission</span>
+      <span class="cd-stat-value success">₹{{ client.commission_amount }}</span>
+    </div>
+  </div>
+
+  <div class="cd-layout">
+    <!-- Lead Information -->
+    <div class="cd-card">
+      <div class="cd-card-header"><h2>Lead Information</h2></div>
+      <div class="cd-card-body">
+        <dl class="cd-info-grid">
+          <dt>Company</dt><dd>{{ lead.company_name }}</dd>
+          <dt>Email</dt><dd>{{ lead.email }}</dd>
+          <dt>Phone</dt><dd>{{ lead.phone }}</dd>
+          <dt>Country</dt><dd>{{ lead.country }}</dd>
+          <dt>Sector</dt><dd>{{ lead.sector }}</dd>
+          <dt>Platform</dt><dd>{{ lead.platform }}</dd>
+          <dt class="full-width">Services</dt>
+          <dd class="full-width">
+            {% if lead.services %}
+              <span class="cd-services-wrap">{{ lead.services | join(', ') }}</span>
+            {% else %}
+              <span style="color:var(--cd-text-muted); font-style:italic;">Not specified</span>
+            {% endif %}
+          </dd>
+        </dl>
+      </div>
+    </div>
+
+    <!-- Billing & Commission -->
+    <div class="cd-card">
+      <div class="cd-card-header"><h2>Billing & Commission</h2></div>
+      <div class="cd-card-body">
+        <dl class="cd-info-grid">
+          <dt>Salesperson</dt><dd>{{ sales.username }}</dd>
+          <dt>Service</dt><dd>{{ client.service_selected }}</dd>
+          <dt>Client Region</dt><dd>{{ client.client_region }}</dd>
+          <dt>Commission Rate</dt><dd>{{ client.commission_percent }}%</dd>
+          
+          <dt class="full-width">Payment Status</dt>
+          <dd class="full-width">
+            {% if client.is_payment_cleared %}
+              <span class="cd-badge cd-badge-success">Cleared</span>
+            {% else %}
+              <span class="cd-badge cd-badge-warning">Pending</span>
+            {% endif %}
+          </dd>
+          
+          <dt class="full-width">Commission Status</dt>
+          <dd class="full-width">
+            {% if client.is_commission_paid %}
+              <span class="cd-badge cd-badge-primary">Paid</span>
+            {% else %}
+              <span class="cd-badge cd-badge-danger">Unpaid</span>
+            {% endif %}
+          </dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

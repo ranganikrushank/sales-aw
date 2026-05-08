@@ -1,0 +1,296 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+  :root {
+    --sl-bg: #f8fafc;
+    --sl-card: #ffffff;
+    --sl-primary: #2563eb;
+    --sl-primary-light: #eff6ff;
+    --sl-text: #0f172a;
+    --sl-text-muted: #64748b;
+    --sl-border: #e2e8f0;
+    --sl-success: #10b981;
+    --sl-success-bg: #dcfce7;
+    --sl-warning: #f59e0b;
+    --sl-warning-bg: #fef3c7;
+    --sl-radius: 14px;
+    --sl-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.05);
+    --sl-transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .sl-wrapper {
+    background: var(--sl-bg);
+    min-height: 100vh;
+    padding: 2rem;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    color: var(--sl-text);
+    box-sizing: border-box;
+  }
+
+  .sl-header { margin-bottom: 2rem; }
+  .sl-header h1 { margin: 0.5rem 0 0.25rem; font-size: 1.75rem; font-weight: 800; letter-spacing: -0.025em; }
+  .sl-header .subtitle { margin: 0; color: var(--sl-text-muted); font-size: 0.95rem; }
+
+  .sl-back-btn {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    padding: 0.6rem 1rem;
+    background: var(--sl-card);
+    border: 1px solid var(--sl-border);
+    border-radius: 999px;
+    color: var(--sl-text);
+    text-decoration: none;
+    font-weight: 600; font-size: 0.875rem;
+    transition: var(--sl-transition);
+  }
+  .sl-back-btn:hover { background: #f1f5f9; border-color: #cbd5e1; transform: translateX(-2px); }
+
+  .sl-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .sl-stat-card {
+    background: var(--sl-card);
+    padding: 1.25rem;
+    border-radius: var(--sl-radius);
+    box-shadow: var(--sl-shadow);
+    border: 1px solid var(--sl-border);
+    transition: var(--sl-transition);
+  }
+  .sl-stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 12px -2px rgba(0,0,0,0.08); }
+  .sl-stat-label { display: block; font-size: 0.75rem; color: var(--sl-text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+  .sl-stat-value { font-size: 1.25rem; font-weight: 700; color: var(--sl-text); }
+
+  .sl-badge {
+    display: inline-block;
+    padding: 0.3rem 0.65rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-top: 0.25rem;
+  }
+  .sl-badge-success { background: var(--sl-success-bg); color: #065f46; }
+  .sl-badge-warning { background: var(--sl-warning-bg); color: #92400e; }
+  .sl-badge-primary { background: var(--sl-primary-light); color: var(--sl-primary); }
+
+  .sl-layout {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 1.5rem;
+    align-items: start;
+  }
+  @media (max-width: 1024px) { .sl-layout { grid-template-columns: 1fr; } }
+
+  .sl-card {
+    background: var(--sl-card);
+    border-radius: var(--sl-radius);
+    box-shadow: var(--sl-shadow);
+    border: 1px solid var(--sl-border);
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+  }
+  .sl-card:last-child { margin-bottom: 0; }
+  .sl-card-header { padding: 1.25rem; border-bottom: 1px solid var(--sl-border); background: #f8fafc; }
+  .sl-card-header h2 { margin: 0; font-size: 1.1rem; font-weight: 700; }
+  .sl-card-body { padding: 1.5rem; }
+
+  .sl-info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem 2rem; margin: 0; }
+  .sl-info-grid dt { font-size: 0.8rem; color: var(--sl-text-muted); font-weight: 600; margin: 0; }
+  .sl-info-grid dd { font-size: 0.95rem; font-weight: 600; margin: 0.25rem 0 0; color: var(--sl-text); line-height: 1.4; }
+  .sl-info-grid .full-width { grid-column: 1 / -1; }
+
+  .sl-services-list { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.25rem; }
+  .sl-service-tag { background: #f1f5f9; padding: 0.3rem 0.6rem; border-radius: 6px; font-size: 0.8rem; font-weight: 500; color: var(--sl-text-muted); }
+
+  .sl-form { display: flex; flex-direction: column; gap: 1rem; }
+  .sl-field { display: flex; flex-direction: column; gap: 0.5rem; }
+  .sl-label { font-size: 0.85rem; font-weight: 600; color: var(--sl-text); }
+  .sl-input, .sl-textarea {
+    width: 100%; padding: 0.75rem 1rem;
+    border: 1px solid var(--sl-border);
+    border-radius: 8px;
+    background: #fff; color: var(--sl-text); font-size: 0.9rem;
+    transition: var(--sl-transition);
+    box-sizing: border-box;
+  }
+  .sl-input:focus, .sl-textarea:focus { outline: none; border-color: var(--sl-primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+  .sl-textarea { min-height: 90px; resize: vertical; }
+
+  .sl-btn {
+    padding: 0.75rem 1rem;
+    background: var(--sl-primary);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--sl-transition);
+    width: 100%;
+  }
+  .sl-btn:hover { background: #1d4ed8; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(37,99,235,0.25); }
+
+  .sl-timeline { position: relative; padding-left: 1.5rem; }
+  .sl-timeline::before { content: ""; position: absolute; left: 5px; top: 6px; bottom: 6px; width: 2px; background: var(--sl-border); }
+  .sl-timeline-item { position: relative; padding-bottom: 1.5rem; }
+  .sl-timeline-item:last-child { padding-bottom: 0; }
+  .sl-timeline-dot {
+    position: absolute; left: -1.5rem; top: 2px;
+    width: 12px; height: 12px; border-radius: 50%;
+    border: 2px solid var(--sl-primary); background: var(--sl-card);
+  }
+  .sl-timeline-dot.done { border-color: var(--sl-success); background: var(--sl-success); }
+  .sl-timeline-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem; }
+  .sl-timeline-date { font-weight: 700; font-size: 0.9rem; }
+  .sl-timeline-note { margin: 0 0 0.5rem; color: var(--sl-text); font-size: 0.9rem; line-height: 1.5; }
+  .sl-timeline-meta { font-size: 0.75rem; color: var(--sl-text-muted); }
+  .sl-timeline-action { margin-top: 0.5rem; }
+
+  .sl-btn-sm {
+    display: inline-flex; align-items: center; gap: 0.3rem;
+    padding: 0.35rem 0.7rem;
+    background: var(--sl-success);
+    color: #fff;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: var(--sl-transition);
+  }
+  .sl-btn-sm:hover { background: #059669; transform: scale(1.02); }
+
+  .sl-empty-state {
+    text-align: center; padding: 2.5rem 1rem; color: var(--sl-text-muted);
+    border: 2px dashed var(--sl-border); border-radius: var(--sl-radius);
+    font-size: 0.9rem;
+  }
+
+  @media (max-width: 640px) {
+    .sl-wrapper { padding: 1rem; }
+    .sl-info-grid { grid-template-columns: 1fr; gap: 1rem; }
+  }
+</style>
+
+<div class="sl-wrapper">
+  <header class="sl-header">
+    <a href="/sales/dashboard" class="sl-back-btn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      Back to Dashboard
+    </a>
+    <h1>Lead Details</h1>
+    <p class="subtitle">Complete lead management & follow up tracking</p>
+  </header>
+
+  <!-- Summary Cards -->
+  <div class="sl-stats-grid">
+    <div class="sl-stat-card">
+      <span class="sl-stat-label">Company Name</span>
+      <span class="sl-stat-value">{{ lead.company_name }}</span>
+    </div>
+    <div class="sl-stat-card">
+      <span class="sl-stat-label">Lead Status</span>
+      <span class="sl-stat-value">
+        {% if lead.is_converted %}
+        <span class="sl-badge sl-badge-success">Converted</span>
+        {% else %}
+        <span class="sl-badge sl-badge-primary">Active Lead</span>
+        {% endif %}
+      </span>
+    </div>
+    <div class="sl-stat-card">
+      <span class="sl-stat-label">Next Follow Up</span>
+      <span class="sl-stat-value">{{ lead.follow_up_date or 'Not Scheduled' }}</span>
+    </div>
+    <div class="sl-stat-card">
+      <span class="sl-stat-label">Total Follow Ups</span>
+      <span class="sl-stat-value">{{ followups|length }}</span>
+    </div>
+  </div>
+
+  <div class="sl-layout">
+    <!-- Left: Lead Information -->
+    <div class="sl-card">
+      <div class="sl-card-header"><h2>Lead Information</h2></div>
+      <div class="sl-card-body">
+        <dl class="sl-info-grid">
+          <dt>Company Name</dt><dd>{{ lead.company_name }}</dd>
+          <dt>Email Address</dt><dd>{{ lead.email }}</dd>
+          <dt>Phone Number</dt><dd>{{ lead.phone }}</dd>
+          <dt>Country</dt><dd>{{ lead.country }}</dd>
+          <dt>Platform Source</dt><dd>{{ lead.platform }}</dd>
+          <dt>Business Sector</dt><dd>{{ lead.sector }}</dd>
+          <dt class="full-width">Services Interested</dt>
+          <dd class="full-width">
+            {% if lead.services %}
+            <div class="sl-services-list">
+              {% for service in lead.services %}
+              <span class="sl-service-tag">{{ service }}</span>
+              {% endfor %}
+            </div>
+            {% else %}
+            <span class="sl-badge sl-badge-warning">No services selected</span>
+            {% endif %}
+          </dd>
+        </dl>
+      </div>
+    </div>
+
+    <!-- Right: Add Follow Up & Timeline -->
+    <div>
+      <div class="sl-card">
+        <div class="sl-card-header"><h2>Add New Follow Up</h2></div>
+        <div class="sl-card-body">
+          <form class="sl-form" action="#" method="POST">
+            <div class="sl-field">
+              <label class="sl-label" for="followup_date">Follow Up Date</label>
+              <input type="date" id="followup_date" name="followup_date" class="sl-input" required>
+            </div>
+            <div class="sl-field">
+              <label class="sl-label" for="followup_note">Follow Up Notes</label>
+              <textarea id="followup_note" name="followup_note" class="sl-textarea" placeholder="What was discussed? Next steps?"></textarea>
+            </div>
+            <button type="submit" class="sl-btn">Add Follow Up</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="sl-card">
+        <div class="sl-card-header"><h2>Follow Up Timeline</h2></div>
+        <div class="sl-card-body">
+          <div class="sl-timeline">
+            {% for f in followups %}
+            <div class="sl-timeline-item">
+              <div class="sl-timeline-dot {% if f.is_done %}done{% endif %}"></div>
+              <div class="sl-timeline-content">
+                <div class="sl-timeline-header">
+                  <span class="sl-timeline-date">{{ f.followup_date }}</span>
+                  <span class="sl-badge {% if f.is_done %}sl-badge-success{% else %}sl-badge-warning{% endif %}">
+                    {% if f.is_done %}Completed{% else %}Pending{% endif %}
+                  </span>
+                </div>
+                <p class="sl-timeline-note">{{ f.followup_note }}</p>
+                <span class="sl-timeline-meta">Added on {{ f.created_at }}</span>
+                {% if not f.is_done %}
+                <div class="sl-timeline-action">
+                  <a href="/sales/complete_followup/{{ f.id }}/{{ lead.id }}" class="sl-btn-sm">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+                    Mark Done
+                  </a>
+                </div>
+                {% endif %}
+              </div>
+            </div>
+            {% else %}
+            <div class="sl-empty-state">
+              No follow ups added yet. Use the form above to schedule one.
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

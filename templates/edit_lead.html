@@ -1,0 +1,313 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="max-w-5xl mx-auto">
+
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-8">
+
+        <div>
+
+            <h1 class="text-3xl font-bold text-gray-800">
+                Edit Lead
+            </h1>
+
+            <p class="text-gray-500 mt-1">
+                Update complete lead information
+            </p>
+
+        </div>
+
+        <a href="/sales/dashboard"
+           class="bg-gray-800 hover:bg-black text-white px-5 py-2 rounded-lg transition">
+            Back Dashboard
+        </a>
+
+    </div>
+
+    <!-- Form -->
+    <div class="bg-white rounded-2xl shadow p-8">
+
+        <form method="POST" class="space-y-8">
+
+            <!-- Basic Info -->
+            <div>
+
+                <h2 class="text-xl font-bold mb-5 border-b pb-3">
+                    Company Information
+                </h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Company Name
+                        </label>
+
+                        <input type="text"
+                               name="company_name"
+                               value="{{ lead.company_name }}"
+                               required
+                               class="w-full border rounded-lg p-3">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Email Address
+                        </label>
+
+                        <input type="email"
+                               name="email"
+                               value="{{ lead.email }}"
+                               required
+                               class="w-full border rounded-lg p-3">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Phone Number
+                        </label>
+
+                        <input type="text"
+                               name="phone"
+                               value="{{ lead.phone }}"
+                               required
+                               class="w-full border rounded-lg p-3">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Country
+                        </label>
+
+                        <input type="text"
+                               name="country"
+                               value="{{ lead.country }}"
+                               required
+                               class="w-full border rounded-lg p-3">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Platform Source
+                        </label>
+
+                        <select name="platform"
+                                class="w-full border rounded-lg p-3">
+
+                            <option value="LinkedIn"
+                                {% if lead.platform == 'LinkedIn' %}selected{% endif %}>
+                                LinkedIn
+                            </option>
+
+                            <option value="Referral"
+                                {% if lead.platform == 'Referral' %}selected{% endif %}>
+                                Referral
+                            </option>
+
+                            <option value="Cold Call"
+                                {% if lead.platform == 'Cold Call' %}selected{% endif %}>
+                                Cold Call
+                            </option>
+
+                            <option value="Website"
+                                {% if lead.platform == 'Website' %}selected{% endif %}>
+                                Website
+                            </option>
+
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Business Sector
+                        </label>
+
+                        <select name="sector"
+                                class="w-full border rounded-lg p-3">
+
+                            <option value="Tech"
+                                {% if lead.sector == 'Tech' %}selected{% endif %}>
+                                Tech
+                            </option>
+
+                            <option value="Healthcare"
+                                {% if lead.sector == 'Healthcare' %}selected{% endif %}>
+                                Healthcare
+                            </option>
+
+                            <option value="Retail"
+                                {% if lead.sector == 'Retail' %}selected{% endif %}>
+                                Retail
+                            </option>
+
+                            <option value="Finance"
+                                {% if lead.sector == 'Finance' %}selected{% endif %}>
+                                Finance
+                            </option>
+
+                        </select>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Services -->
+            <div>
+
+                <h2 class="text-xl font-bold mb-5 border-b pb-3">
+                    Services Interested
+                </h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                    <label class="flex items-center gap-3 border rounded-lg p-3">
+
+                        <input type="checkbox"
+                               name="services"
+                               value="Website Development"
+                               {% if 'Website Development' in lead.services %}checked{% endif %}>
+
+                        Website Development
+
+                    </label>
+
+                    <label class="flex items-center gap-3 border rounded-lg p-3">
+
+                        <input type="checkbox"
+                               name="services"
+                               value="E Commerce Website"
+                               {% if 'E Commerce Website' in lead.services %}checked{% endif %}>
+
+                        E Commerce Website
+
+                    </label>
+
+                    <label class="flex items-center gap-3 border rounded-lg p-3">
+
+                        <input type="checkbox"
+                               name="services"
+                               value="Custom Software Development"
+                               {% if 'Custom Software Development' in lead.services %}checked{% endif %}>
+
+                        Custom Software Development
+
+                    </label>
+
+                    <label class="flex items-center gap-3 border rounded-lg p-3">
+
+                        <input type="checkbox"
+                               name="services"
+                               value="App Development"
+                               {% if 'App Development' in lead.services %}checked{% endif %}>
+
+                        App Development
+
+                    </label>
+
+                    <label class="flex items-center gap-3 border rounded-lg p-3 md:col-span-2">
+
+                        <input type="checkbox"
+                               name="services"
+                               value="AI Software & AI Agents"
+                               {% if 'AI Software & AI Agents' in lead.services %}checked{% endif %}>
+
+                        AI Software & AI Agents
+
+                    </label>
+
+                </div>
+
+            </div>
+
+            <!-- Follow Up -->
+            <div>
+
+                <h2 class="text-xl font-bold mb-5 border-b pb-3">
+                    Follow Up & Status
+                </h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+                    <div>
+
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Next Follow Up Date
+                        </label>
+
+                        <input type="date"
+                               name="follow_up_date"
+                               value="{{ lead.follow_up_date }}"
+                               class="w-full border rounded-lg p-3">
+
+                    </div>
+
+                    <div>
+
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Lead Status
+                        </label>
+
+                        <select name="is_converted"
+                                class="w-full border rounded-lg p-3">
+
+                            <option value="false"
+                                {% if not lead.is_converted %}selected{% endif %}>
+                                Active
+                            </option>
+
+                            <option value="true"
+                                {% if lead.is_converted %}selected{% endif %}>
+                                Converted
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Notes -->
+            <div>
+
+                <h2 class="text-xl font-bold mb-5 border-b pb-3">
+                    Internal Notes
+                </h2>
+
+                <textarea name="follow_up_notes"
+                          rows="6"
+                          placeholder="Add internal notes, requirements, discussion points, objections etc..."
+                          class="w-full border rounded-lg p-4">{{ lead.follow_up_notes or '' }}</textarea>
+
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex gap-4 pt-4">
+
+                <button type="submit"
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold transition">
+
+                    Update Lead
+
+                </button>
+
+                <a href="/sales/dashboard"
+                   class="bg-gray-200 hover:bg-gray-300 px-8 py-3 rounded-lg font-semibold transition">
+
+                    Cancel
+
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

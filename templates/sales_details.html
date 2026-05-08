@@ -1,0 +1,251 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+  :root {
+    --sd-bg: #f8fafc;
+    --sd-card: #ffffff;
+    --sd-primary: #2563eb;
+    --sd-primary-light: #eff6ff;
+    --sd-text: #0f172a;
+    --sd-text-muted: #64748b;
+    --sd-border: #e2e8f0;
+    --sd-success: #10b981;
+    --sd-success-bg: #dcfce7;
+    --sd-warning: #f59e0b;
+    --sd-warning-bg: #fef3c7;
+    --sd-danger: #ef4444;
+    --sd-danger-bg: #fee2e2;
+    --sd-radius: 14px;
+    --sd-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.05);
+    --sd-transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .sd-wrapper {
+    background: var(--sd-bg);
+    min-height: 100vh;
+    padding: 2rem;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    color: var(--sd-text);
+    box-sizing: border-box;
+  }
+
+  .sd-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .sd-header h1 { margin: 0; font-size: 1.75rem; font-weight: 800; letter-spacing: -0.025em; }
+  .sd-header .subtitle { margin: 0.25rem 0 0; color: var(--sd-text-muted); font-size: 0.95rem; }
+
+  .sd-back-btn {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    padding: 0.6rem 1rem;
+    background: var(--sd-card);
+    border: 1px solid var(--sd-border);
+    border-radius: 999px;
+    color: var(--sd-text);
+    text-decoration: none;
+    font-weight: 600; font-size: 0.875rem;
+    transition: var(--sd-transition);
+  }
+  .sd-back-btn:hover { background: #f1f5f9; border-color: #cbd5e1; transform: translateX(-2px); }
+
+  .sd-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .sd-stat-card {
+    background: var(--sd-card);
+    padding: 1.25rem;
+    border-radius: var(--sd-radius);
+    box-shadow: var(--sd-shadow);
+    border: 1px solid var(--sd-border);
+    display: flex;
+    flex-direction: column;
+    transition: var(--sd-transition);
+  }
+  .sd-stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 12px -2px rgba(0,0,0,0.08); }
+  
+  .sd-stat-label { font-size: 0.8rem; color: var(--sd-text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+  .sd-stat-value { font-size: 1.75rem; font-weight: 800; color: var(--sd-text); }
+  .sd-stat-value.highlight { color: var(--sd-primary); }
+
+  .sd-section { margin-bottom: 2rem; }
+  .sd-section-header { margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+  .sd-section h2 { margin: 0; font-size: 1.25rem; font-weight: 700; }
+  .sd-count-badge { background: var(--sd-primary-light); color: var(--sd-primary); padding: 0.2rem 0.6rem; border-radius: 6px; font-size: 0.8rem; font-weight: 700; }
+
+  .sd-card {
+    background: var(--sd-card);
+    border-radius: var(--sd-radius);
+    box-shadow: var(--sd-shadow);
+    border: 1px solid var(--sd-border);
+    overflow: hidden;
+  }
+
+  .sd-table-wrapper { overflow-x: auto; }
+  .sd-table { width: 100%; border-collapse: collapse; min-width: 600px; }
+  .sd-table th { text-align: left; padding: 1rem; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--sd-text-muted); font-weight: 600; background: #f8fafc; border-bottom: 1px solid var(--sd-border); }
+  .sd-table td { padding: 1rem; border-bottom: 1px solid var(--sd-border); font-size: 0.9rem; vertical-align: middle; }
+  .sd-table tr:last-child td { border-bottom: none; }
+  .sd-table tr:hover td { background: #f8fafc; }
+
+  .sd-company-cell { display: flex; flex-direction: column; }
+  .sd-company-name { font-weight: 600; color: var(--sd-text); }
+  .sd-company-email { font-size: 0.8rem; color: var(--sd-text-muted); margin-top: 0.15rem; }
+
+  .sd-badge { display: inline-block; padding: 0.3rem 0.7rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600; text-align: center; }
+  .sd-badge-success { background: var(--sd-success-bg); color: #065f46; }
+  .sd-badge-warning { background: var(--sd-warning-bg); color: #92400e; }
+  .sd-badge-danger { background: var(--sd-danger-bg); color: #991b1b; }
+  .sd-badge-active { background: var(--sd-primary-light); color: var(--sd-primary); }
+
+  .sd-btn {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    padding: 0.5rem 0.8rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: var(--sd-transition);
+  }
+  .sd-btn-primary { background: var(--sd-primary); color: #fff; }
+  .sd-btn-primary:hover { background: var(--sd-primary-hover); transform: translateY(-1px); box-shadow: 0 2px 4px rgba(37,99,235,0.3); }
+  .sd-btn-outline { background: transparent; border: 1px solid var(--sd-border); color: var(--sd-text-muted); }
+  .sd-btn-outline:hover { background: #f1f5f9; color: var(--sd-text); border-color: #cbd5e1; }
+
+  .sd-currency { font-family: 'JetBrains Mono', monospace, sans-serif; font-weight: 600; color: var(--sd-text); }
+  
+  @media (max-width: 768px) {
+    .sd-wrapper { padding: 1rem; }
+    .sd-header { flex-direction: column; align-items: flex-start; }
+    .sd-table-wrapper { border: 1px solid var(--sd-border); border-radius: var(--sd-radius); }
+  }
+</style>
+
+<div class="sd-wrapper">
+  <header class="sd-header">
+    <div>
+      <a href="/admin/dashboard" class="sd-back-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        Back to Dashboard
+      </a>
+      <h1 style="margin-top:0.75rem;">Sales Details: {{ user.username }}</h1>
+      <p class="subtitle">Overview of pipeline, clients, and commissions</p>
+    </div>
+  </header>
+
+  <div class="sd-stats-grid">
+    <div class="sd-stat-card">
+      <span class="sd-stat-label">Base Salary</span>
+      <span class="sd-stat-value highlight">₹{{ user.base_salary }}</span>
+    </div>
+    <div class="sd-stat-card">
+      <span class="sd-stat-label">Total Leads</span>
+      <span class="sd-stat-value">{{ leads|length }}</span>
+    </div>
+    <div class="sd-stat-card">
+      <span class="sd-stat-label">Converted Clients</span>
+      <span class="sd-stat-value">{{ clients|length }}</span>
+    </div>
+  </div>
+
+  <div class="sd-section">
+    <div class="sd-section-header">
+      <h2>Leads Pipeline</h2>
+      <span class="sd-count-badge">{{ leads|length }}</span>
+    </div>
+    <div class="sd-card">
+      <div class="sd-table-wrapper">
+        <table class="sd-table">
+          <thead>
+            <tr>
+              <th>Company</th>
+              <th>Platform</th>
+              <th>Status</th>
+              <th style="text-align:right;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for l in leads %}
+            <tr>
+              <td>
+                <div class="sd-company-cell">
+                  <span class="sd-company-name">{{ l.company_name }}</span>
+                  <span class="sd-company-email">{{ l.email }}</span>
+                </div>
+              </td>
+              <td>{{ l.platform }}</td>
+              <td>
+                {% if l.is_converted %}
+                <span class="sd-badge sd-badge-success">Converted</span>
+                {% else %}
+                <span class="sd-badge sd-badge-active">Active</span>
+                {% endif %}
+              </td>
+              <td style="text-align:right;">
+                <a href="/admin/lead_details/{{ l.id }}" class="sd-btn sd-btn-outline">View Details</a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="sd-section">
+    <div class="sd-section-header">
+      <h2>Client Payment & Commission Tracker</h2>
+    </div>
+    <div class="sd-card">
+      <div class="sd-table-wrapper">
+        <table class="sd-table">
+          <thead>
+            <tr>
+              <th>Service</th>
+              <th>Total Amount</th>
+              <th>Payment Status</th>
+              <th>Commission</th>
+              <th>Overall Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for c in clients %}
+            <tr>
+              <td>
+                <div class="sd-company-name">{{ c.service_selected }}</div>
+              </td>
+              <td><span class="sd-currency">₹{{ c.total_amount }}</span></td>
+              <td>
+                {% if c.is_payment_cleared %}
+                <span class="sd-badge sd-badge-success">Full Payment</span>
+                {% else %}
+                <span class="sd-badge sd-badge-warning">⏳ ₹{{ c.payment_left }} left</span>
+                {% endif %}
+              </td>
+              <td><span class="sd-currency">₹{{ c.commission_amount }}</span></td>
+              <td>
+                {% if c.is_payment_cleared and c.is_commission_paid %}
+                <span class="sd-badge sd-badge-success">✅ PAID</span>
+                {% elif c.is_payment_cleared and not c.is_commission_paid %}
+                <span class="sd-badge sd-badge-warning">🟡 Cleared, Awaiting Admin</span>
+                {% else %}
+                <span class="sd-badge sd-badge-danger">🔴 Payment Pending</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

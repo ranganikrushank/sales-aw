@@ -1,0 +1,236 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+  :root {
+    --ld-bg: #f8fafc;
+    --ld-card: #ffffff;
+    --ld-primary: #2563eb;
+    --ld-primary-light: #eff6ff;
+    --ld-text: #0f172a;
+    --ld-text-muted: #64748b;
+    --ld-border: #e2e8f0;
+    --ld-success: #10b981;
+    --ld-success-bg: #dcfce7;
+    --ld-warning: #f59e0b;
+    --ld-warning-bg: #fef3c7;
+    --ld-radius: 14px;
+    --ld-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.05);
+    --ld-transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .ld-wrapper {
+    background: var(--ld-bg);
+    min-height: 100vh;
+    padding: 2rem;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    color: var(--ld-text);
+    box-sizing: border-box;
+  }
+
+  .ld-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .ld-header h1 { margin: 0; font-size: 1.75rem; font-weight: 800; letter-spacing: -0.025em; }
+  .ld-header p { margin: 0.25rem 0 0; color: var(--ld-text-muted); }
+
+  .ld-back-btn {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    padding: 0.6rem 1rem;
+    background: var(--ld-card);
+    border: 1px solid var(--ld-border);
+    border-radius: 999px;
+    color: var(--ld-text);
+    text-decoration: none;
+    font-weight: 600; font-size: 0.875rem;
+    transition: var(--ld-transition);
+  }
+  .ld-back-btn:hover { background: #f1f5f9; border-color: #cbd5e1; transform: translateX(-2px); }
+
+  .ld-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .ld-card {
+    background: var(--ld-card);
+    border-radius: var(--ld-radius);
+    box-shadow: var(--ld-shadow);
+    border: 1px solid var(--ld-border);
+    padding: 1.25rem;
+    transition: var(--ld-transition);
+  }
+  .ld-card:hover { box-shadow: 0 8px 12px -2px rgba(0,0,0,0.08); }
+
+  .ld-label { display: block; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ld-text-muted); font-weight: 600; margin-bottom: 0.5rem; }
+  .ld-value { font-size: 1.1rem; font-weight: 700; color: var(--ld-text); word-break: break-word; }
+
+  .ld-badge {
+    display: inline-block; padding: 0.35rem 0.75rem; border-radius: 999px;
+    font-size: 0.8rem; font-weight: 700;
+  }
+  .ld-badge-success { background: var(--ld-success-bg); color: #065f46; }
+  .ld-badge-active { background: var(--ld-primary-light); color: var(--ld-primary); }
+  .ld-badge-warning { background: var(--ld-warning-bg); color: #92400e; }
+
+  .ld-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+  @media (max-width: 1024px) { .ld-layout { grid-template-columns: 1fr; } }
+
+  .ld-section-title { margin: 0 0 1.25rem; font-size: 1.1rem; font-weight: 700; border-bottom: 2px solid var(--ld-border); padding-bottom: 0.75rem; }
+
+  .ld-info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem; }
+  @media (max-width: 480px) { .ld-info-grid { grid-template-columns: 1fr; } }
+  .ld-info-item.full-width { grid-column: 1 / -1; }
+  .ld-info-label { display: block; font-size: 0.8rem; color: var(--ld-text-muted); font-weight: 500; margin-bottom: 0.25rem; }
+  .ld-info-val { font-size: 0.95rem; font-weight: 600; color: var(--ld-text); }
+  .ld-services-list { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.25rem; }
+  .ld-service-tag { background: #f1f5f9; padding: 0.3rem 0.6rem; border-radius: 6px; font-size: 0.8rem; font-weight: 500; color: var(--ld-text-muted); }
+
+  .ld-followups-section { display: flex; flex-direction: column; gap: 1.5rem; }
+  .ld-stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; text-align: center; }
+  .ld-stat-num { display: block; font-size: 1.5rem; font-weight: 800; color: var(--ld-text); }
+  .ld-stat-label { font-size: 0.75rem; color: var(--ld-text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+  .ld-stat-success { color: var(--ld-success); }
+  .ld-stat-warning { color: var(--ld-warning); }
+
+  .ld-timeline { position: relative; padding-left: 1.5rem; }
+  .ld-timeline::before {
+    content: ""; position: absolute; left: 5px; top: 8px; bottom: 8px;
+    width: 2px; background: var(--ld-border);
+  }
+  .ld-timeline-item { position: relative; padding-bottom: 1.5rem; }
+  .ld-timeline-item:last-child { padding-bottom: 0; }
+  .ld-timeline-dot {
+    position: absolute; left: -1.5rem; top: 2px;
+    width: 12px; height: 12px; border-radius: 50%;
+    border: 2px solid var(--ld-primary); background: var(--ld-card);
+  }
+  .ld-timeline-dot.done { border-color: var(--ld-success); background: var(--ld-success); }
+  .ld-timeline-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+  .ld-timeline-date { font-weight: 700; font-size: 0.9rem; }
+  .ld-timeline-note { margin: 0 0 0.5rem; color: var(--ld-text); font-size: 0.9rem; line-height: 1.5; }
+  .ld-timeline-meta { font-size: 0.75rem; color: var(--ld-text-muted); }
+
+  .ld-empty-state {
+    text-align: center; padding: 3rem 1rem; color: var(--ld-text-muted);
+    border: 2px dashed var(--ld-border); border-radius: var(--ld-radius);
+  }
+</style>
+
+<div class="ld-wrapper">
+  <header class="ld-header">
+    <a href="/admin/dashboard" class="ld-back-btn">← Back to Dashboard</a>
+    <div>
+      <h1>Lead Details</h1>
+      <p>Admin lead tracking & follow-up management</p>
+    </div>
+  </header>
+
+  <div class="ld-summary-grid">
+    <div class="ld-card">
+      <span class="ld-label">Company</span>
+      <span class="ld-value">{{ lead.company_name }}</span>
+    </div>
+    <div class="ld-card">
+      <span class="ld-label">Salesperson</span>
+      <span class="ld-value">{{ sales.username }}</span>
+    </div>
+    <div class="ld-card">
+      <span class="ld-label">Status</span>
+      <span class="ld-value">
+        {% if lead.is_converted %}
+        <span class="ld-badge ld-badge-success">Converted</span>
+        {% else %}
+        <span class="ld-badge ld-badge-active">Active</span>
+        {% endif %}
+      </span>
+    </div>
+    <div class="ld-card">
+      <span class="ld-label">Next Follow Up</span>
+      <span class="ld-value">{{ lead.follow_up_date or 'Not Scheduled' }}</span>
+    </div>
+  </div>
+
+  <div class="ld-layout">
+    <!-- Lead Information -->
+    <div class="ld-card">
+      <h2 class="ld-section-title">Lead Information</h2>
+      <div class="ld-info-grid">
+        <div class="ld-info-item"><span class="ld-info-label">Email</span><span class="ld-info-val">{{ lead.email }}</span></div>
+        <div class="ld-info-item"><span class="ld-info-label">Phone</span><span class="ld-info-val">{{ lead.phone }}</span></div>
+        <div class="ld-info-item"><span class="ld-info-label">Country</span><span class="ld-info-val">{{ lead.country }}</span></div>
+        <div class="ld-info-item"><span class="ld-info-label">Platform</span><span class="ld-info-val">{{ lead.platform }}</span></div>
+        <div class="ld-info-item"><span class="ld-info-label">Sector</span><span class="ld-info-val">{{ lead.sector }}</span></div>
+        <div class="ld-info-item full-width">
+          <span class="ld-info-label">Services</span>
+          <div class="ld-services-list">
+            {% for service in lead.services %}
+            <span class="ld-service-tag">{{ service }}</span>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Follow Ups -->
+    <div class="ld-followups-section">
+      <div class="ld-card">
+        <h2 class="ld-section-title">Follow Up Summary</h2>
+        <div class="ld-stats-row">
+          <div class="ld-stat">
+            <span class="ld-stat-num">{{ followups|length }}</span>
+            <span class="ld-stat-label">Total</span>
+          </div>
+          <div class="ld-stat">
+            <span class="ld-stat-num ld-stat-success">{{ followups | selectattr('is_done', 'equalto', true) | list | length }}</span>
+            <span class="ld-stat-label">Completed</span>
+          </div>
+          <div class="ld-stat">
+            <span class="ld-stat-num ld-stat-warning">{{ followups | selectattr('is_done', 'equalto', false) | list | length }}</span>
+            <span class="ld-stat-label">Pending</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="ld-card">
+        <h2 class="ld-section-title">Follow Up Timeline</h2>
+        <div class="ld-timeline">
+          {% for f in followups %}
+          <div class="ld-timeline-item">
+            <div class="ld-timeline-dot {% if f.is_done %}done{% endif %}"></div>
+            <div class="ld-timeline-content">
+              <div class="ld-timeline-header">
+                <span class="ld-timeline-date">{{ f.followup_date }}</span>
+                <span class="ld-badge {% if f.is_done %}ld-badge-success{% else %}ld-badge-warning{% endif %}">
+                  {% if f.is_done %}Completed{% else %}Pending{% endif %}
+                </span>
+              </div>
+              <p class="ld-timeline-note">{{ f.followup_note }}</p>
+              <span class="ld-timeline-meta">Added on {{ f.created_at }}</span>
+            </div>
+          </div>
+          {% else %}
+          <div class="ld-empty-state">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin:0 auto 1rem; display:block; opacity:0.5;">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+            </svg>
+            <p style="margin:0; font-weight:600;">No follow ups available.</p>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

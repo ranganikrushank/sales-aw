@@ -1,0 +1,235 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+  .admin-history-wrap {
+    max-width: 1150px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    color: #111827;
+  }
+  .admin-header {
+    margin-bottom: 1.5rem;
+  }
+  .admin-header h1 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem;
+    color: #0f172a;
+  }
+  .salary-highlight {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #f1f5f9;
+    padding: 0.5rem 0.9rem;
+    border-radius: 8px;
+    font-weight: 500;
+    color: #334155;
+  }
+  .card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.04);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid #e2e8f0;
+  }
+  .card-title {
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 0 0 1rem;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .table-scroll {
+    overflow-x: auto;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+  }
+  .admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    min-width: 600px;
+  }
+  .admin-table th,
+  .admin-table td {
+    padding: 0.85rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  .admin-table th {
+    background: #f8fafc;
+    font-weight: 600;
+    color: #475569;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+  }
+  .admin-table tbody tr:last-child td { border-bottom: none; }
+  .admin-table tbody tr:hover { background: #f8fafc; }
+  
+  .empty-state {
+    text-align: center;
+    padding: 1.5rem !important;
+    color: #94a3b8;
+    font-style: italic;
+  }
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.65rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+  .status-paid { background: #dcfce7; color: #166534; }
+  .status-pending { background: #fef3c7; color: #92400e; }
+  
+  .btn-action {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.4rem 0.85rem;
+    background: #2563eb;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    transition: background 0.2s, transform 0.1s;
+  }
+  .btn-action:hover { background: #1d4ed8; transform: translateY(-1px); }
+  
+  .btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.2rem;
+    background: #ffffff;
+    color: #334155;
+    text-decoration: none;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.2s;
+    margin-top: 0.5rem;
+  }
+  .btn-back:hover { background: #f1f5f9; border-color: #94a3b8; }
+
+  @media (max-width: 640px) {
+    .admin-history-wrap { padding: 0 0.75rem; }
+    .card { padding: 1rem; }
+    .admin-table th, .admin-table td { padding: 0.6rem; font-size: 0.85rem; }
+  }
+</style>
+
+<div class="admin-history-wrap">
+  <div class="admin-header">
+    <h1>📊 History for: {{ user.username }}</h1>
+    <div class="salary-highlight">Current Base Salary: <strong>₹{{ user.base_salary }}</strong></div>
+  </div>
+
+  <!-- Commission Payouts -->
+  <div class="card">
+    <h2 class="card-title">✅ Commission Payouts</h2>
+    <div class="table-scroll">
+      <table class="admin-table">
+        <thead>
+          <tr>
+              <th>Client ID</th>
+              <th>Date</th>
+              <th>Service</th>
+              <th>Region</th>
+              <th>Deal Value</th>
+              <th>Commission Paid</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in comm_history %}
+          <tr>
+
+            <td>
+                <span style="
+                    background:#dbeafe;
+                    color:#1d4ed8;
+                    padding:4px 10px;
+                    border-radius:999px;
+                    font-size:12px;
+                    font-weight:600;
+                ">
+                    {{ c.custom_client_id }}
+                </span>
+            </td>
+
+            <td>{{ c.created_at[:10] }}</td>
+
+            <td>{{ c.service_selected }}</td>
+
+            <td>{{ c.client_region }}</td>
+
+            <td>
+                <strong>₹{{ c.total_amount }}</strong>
+            </td>
+
+            <td>
+                <strong style="color:#059669;">
+                    ₹{{ c.commission_amount }}
+                </strong>
+            </td>
+
+        </tr>
+          {% else %}
+          <tr><td colspan="6" class="empty-state">No paid commissions.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Salary Ledger -->
+  <div class="card">
+    <h2 class="card-title">💵 Salary Ledger</h2>
+    <div class="table-scroll">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Month</th>
+            <th>Amount</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for s in sal_history %}
+          <tr>
+            <td>{{ s.month or s.created_at[:7] }}</td>
+            <td>₹{{ s.amount }}</td>
+            <td>
+              {% if s.is_paid %}
+                <span class="status-badge status-paid">✅ Paid</span>
+              {% else %}
+                <span class="status-badge status-pending">⏳ Pending</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if not s.is_paid %}
+                <a href="{{ url_for('mark_paid', sal_id=s.id) }}" class="btn-action">Mark Paid</a>
+              {% endif %}
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="4" class="empty-state">No salary records.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <a href="{{ url_for('admin_dashboard') }}" class="btn-back">← Back to Admin</a>
+</div>
+
+{% endblock %}

@@ -1,0 +1,322 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+  :root {
+    --sd-bg: #f8fafc;
+    --sd-card: #ffffff;
+    --sd-primary: #2563eb;
+    --sd-primary-light: #eff6ff;
+    --sd-text: #0f172a;
+    --sd-text-muted: #64748b;
+    --sd-border: #e2e8f0;
+    --sd-success: #10b981;
+    --sd-success-bg: #dcfce7;
+    --sd-warning: #f59e0b;
+    --sd-warning-bg: #fef3c7;
+    --sd-radius: 14px;
+    --sd-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.05);
+    --sd-transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .sd-wrapper {
+    background: var(--sd-bg);
+    min-height: 100vh;
+    padding: 2rem;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    color: var(--sd-text);
+    box-sizing: border-box;
+  }
+
+  .sd-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .sd-header h1 { margin: 0; font-size: 1.75rem; font-weight: 800; letter-spacing: -0.025em; }
+  .sd-header .subtitle { margin: 0.25rem 0 0; color: var(--sd-text-muted); font-size: 0.95rem; }
+
+  .sd-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .sd-kpi-card {
+    background: var(--sd-card);
+    padding: 1.5rem;
+    border-radius: var(--sd-radius);
+    box-shadow: var(--sd-shadow);
+    border: 1px solid var(--sd-border);
+    transition: var(--sd-transition);
+    position: relative;
+    overflow: hidden;
+  }
+  .sd-kpi-card::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--sd-primary), #60a5fa);
+  }
+  .sd-kpi-card:hover { transform: translateY(-3px); box-shadow: 0 12px 20px -4px rgba(0,0,0,0.1); }
+  
+  .sd-kpi-label { font-size: 0.8rem; color: var(--sd-text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+  .sd-kpi-value { font-size: 1.875rem; font-weight: 800; color: var(--sd-text); font-family: 'JetBrains Mono', ui-monospace, monospace; }
+  .sd-kpi-value.highlight { color: var(--sd-primary); }
+
+  .sd-section { margin-bottom: 2.5rem; }
+  .sd-section-header { margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem; }
+  .sd-section h2 { margin: 0; font-size: 1.25rem; font-weight: 700; }
+  .sd-add-btn {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    padding: 0.5rem 1rem;
+    background: var(--sd-primary);
+    color: #fff;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: var(--sd-transition);
+  }
+  .sd-add-btn:hover { background: var(--sd-primary-hover); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(37,99,235,0.25); }
+
+  .sd-card {
+    background: var(--sd-card);
+    border-radius: var(--sd-radius);
+    box-shadow: var(--sd-shadow);
+    border: 1px solid var(--sd-border);
+    overflow: hidden;
+  }
+
+  .sd-table-wrapper { overflow-x: auto; }
+  .sd-table { width: 100%; border-collapse: collapse; min-width: 600px; }
+  .sd-table th { text-align: left; padding: 1rem 1.25rem; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--sd-text-muted); font-weight: 600; background: #f8fafc; border-bottom: 1px solid var(--sd-border); }
+  .sd-table td { padding: 1rem 1.25rem; border-bottom: 1px solid var(--sd-border); font-size: 0.9rem; vertical-align: middle; }
+  .sd-table tr:last-child td { border-bottom: none; }
+  .sd-table tr:hover td { background: #f8fafc; }
+
+  .sd-company-cell { display: flex; flex-direction: column; }
+  .sd-company-name { font-weight: 600; color: var(--sd-text); }
+  .sd-company-email { font-size: 0.8rem; color: var(--sd-text-muted); margin-top: 0.15rem; }
+
+  .sd-badge { display: inline-block; padding: 0.3rem 0.7rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600; text-align: center; }
+  .sd-badge-success { background: var(--sd-success-bg); color: #065f46; }
+  .sd-badge-active { background: var(--sd-primary-light); color: var(--sd-primary); }
+
+  .sd-btn {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    padding: 0.4rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: var(--sd-transition);
+  }
+  .sd-btn-outline { background: transparent; border: 1px solid var(--sd-border); color: var(--sd-text-muted); }
+  .sd-btn-outline:hover { background: #f1f5f9; color: var(--sd-text); border-color: #cbd5e1; }
+  .sd-btn-success { background: var(--sd-success); color: #fff; }
+  .sd-btn-success:hover { background: #059669; }
+
+  .sd-currency { font-family: 'JetBrains Mono', ui-monospace, monospace; font-weight: 600; color: var(--sd-text); }
+
+  .sd-rates-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+  .sd-rates-card { background: var(--sd-card); border-radius: var(--sd-radius); border: 1px solid var(--sd-border); padding: 1.25rem; box-shadow: var(--sd-shadow); }
+  .sd-rates-header { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--sd-border); }
+  .sd-rates-title { font-weight: 700; font-size: 1rem; }
+  .sd-rates-table { width: 100%; }
+  .sd-rates-table td { padding: 0.5rem 0; font-size: 0.9rem; }
+  .sd-rates-table td:first-child { color: var(--sd-text-muted); }
+  .sd-rates-table td:last-child { font-weight: 600; text-align: right; color: var(--sd-primary); }
+
+  @media (max-width: 768px) {
+    .sd-wrapper { padding: 1rem; }
+    .sd-header { flex-direction: column; align-items: flex-start; }
+    .sd-table-wrapper { border: 1px solid var(--sd-border); border-radius: var(--sd-radius); }
+    .sd-section-header { flex-direction: column; align-items: flex-start; }
+  }
+  .sd-kpi-link{
+      display: block;
+      margin-top: 0.35rem;
+      font-size: 1.05rem;
+      font-weight: 700;
+      line-height: 1.5;
+      color: var(--sd-text);
+      text-decoration: none;
+      transition: var(--sd-transition);
+  }
+
+  .sd-kpi-link:hover{
+      color: var(--sd-primary);
+  }
+</style>
+
+<div class="sd-wrapper">
+  <header class="sd-header">
+    <div>
+      <h1>Sales Dashboard</h1>
+      <p class="subtitle">Track your leads, commissions, and performance</p>
+    </div>
+  </header>
+
+  <!-- KPI Summary Cards -->
+  <div class="sd-kpi-grid">
+    <div class="sd-kpi-card">
+      <span class="sd-kpi-label">Current Salary</span>
+      <span class="sd-kpi-value highlight">₹{{ current_salary }}</span>
+    </div>
+    <div class="sd-kpi-card">
+        <span class="sd-kpi-label">History</span>
+
+        <a href="{{ url_for('sales_history') }}" class="sd-kpi-link">
+            📊 Commission & Salary History
+        </a>
+    </div>
+    <div class="sd-kpi-card">
+      <span class="sd-kpi-label">Total Generated Revenue</span>
+      <span class="sd-kpi-value">₹{{ total_revenue }}</span>
+    </div>
+    <div class="sd-kpi-card">
+      <span class="sd-kpi-label">Commission Earned</span>
+      <span class="sd-kpi-value highlight">₹{{ total_commission }}</span>
+    </div>
+  </div>
+
+  <!-- Commission Rates Section -->
+  <div class="sd-section">
+    <div class="sd-section-header">
+      <h2>My Commission Rates (%)</h2>
+    </div>
+    <div class="sd-rates-grid">
+      <!-- Indian Clients -->
+      <div class="sd-rates-card">
+        <div class="sd-rates-header">
+          <span style="font-size:1.25rem;">🇮🇳</span>
+          <span class="sd-rates-title">Indian Clients</span>
+        </div>
+        <table class="sd-rates-table">
+          <tbody>
+            {% for key in service_labels %}
+            <tr>
+              <td>{{ service_labels[key] }}</td>
+              <td>{{ comm_config.indian.get(key, 0) }}%</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <!-- Foreign Clients -->
+      <div class="sd-rates-card">
+        <div class="sd-rates-header">
+          <span style="font-size:1.25rem;">🌍</span>
+          <span class="sd-rates-title">Foreign Clients</span>
+        </div>
+        <table class="sd-rates-table">
+          <tbody>
+            {% for key in service_labels %}
+            <tr>
+              <td>{{ service_labels[key] }}</td>
+              <td>{{ comm_config.foreign.get(key, 0) }}%</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- My Leads Section -->
+  <div class="sd-section">
+    <div class="sd-section-header">
+      <h2>My Leads</h2>
+      <a href="/sales/add_lead" class="sd-add-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+        Add Lead
+      </a>
+    </div>
+    <div class="sd-card">
+      <div class="sd-table-wrapper">
+        <table class="sd-table">
+          <thead>
+            <tr>
+              <th>Company</th>
+              <th>Platform</th>
+              <th>Follow Up</th>
+              <th>Status</th>
+              <th style="text-align:right;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for l in leads %}
+            <tr>
+              <td>
+                <div class="sd-company-cell">
+                  <span class="sd-company-name">{{ l.company_name }}</span>
+                  <span class="sd-company-email">{{ l.email }}</span>
+                </div>
+              </td>
+              <td>{{ l.platform }}</td>
+              <td>{{ l.follow_up_date or 'N/A' }}</td>
+              <td>
+                {% if l.is_converted %}
+                <span class="sd-badge sd-badge-success">Converted</span>
+                {% else %}
+                <span class="sd-badge sd-badge-active">Active</span>
+                {% endif %}
+              </td>
+              <td style="text-align:right;">
+                <div style="display:flex; gap:0.4rem; justify-content:flex-end; flex-wrap:wrap;">
+                  <a href="/sales/lead_details/{{ l.id }}" class="sd-btn sd-btn-outline">View</a>
+                  <a href="/sales/edit_lead/{{ l.id }}" class="sd-btn sd-btn-outline">Edit</a>
+                  {% if not l.is_converted %}
+                  <a href="/sales/convert/{{ l.id }}" class="sd-btn sd-btn-success">Mark Converted</a>
+                  {% else %}
+                  <span class="sd-badge sd-badge-success">✓ Converted</span>
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Converted Clients Summary -->
+  <div class="sd-section">
+    <div class="sd-section-header">
+      <h2>Converted Clients (Summary)</h2>
+    </div>
+    <div class="sd-card">
+      <div class="sd-table-wrapper">
+        <table class="sd-table">
+          <thead>
+            <tr>
+              <th>Client ID</th>
+              <th>Service</th>
+              <th>Total Amount</th>
+              <th>Commission</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for c in clients %}
+            <tr>
+              <td>
+                <span class="sd-company-name">{{ c.id[:8] }}...</span>
+              </td>
+              <td>{{ c.service_selected }}</td>
+              <td><span class="sd-currency">₹{{ c.total_amount }}</span></td>
+              <td><span class="sd-currency highlight">₹{{ c.commission_amount }}</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

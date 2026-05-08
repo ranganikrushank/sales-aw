@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Sales CRM{% endblock %} | Atlancia Worldwide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+                    colors: {
+                        primary: { 50: '#eff6ff', 100: '#dbeafe', 500: '#002869', 600: '#001646', 700: '#1d4ed8' },
+                        surface: { 50: '#f8fafc', 100: '#f1f5f9', 200: '#e2e8f0' }
+                    },
+                    animation: { 'fade-in': 'fadeIn 0.3s ease-out', 'slide-up': 'slideUp 0.4s ease-out' },
+                    keyframes: {
+                        fadeIn: { '0%': { opacity: 0 }, '100%': { opacity: 1 } },
+                        slideUp: { '0%': { opacity: 0, transform: 'translateY(1rem)' }, '100%': { opacity: 1, transform: 'translateY(0)' } }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Smooth scrolling & focus styles */
+        html { scroll-behavior: smooth; }
+        :focus-visible { outline: 2px solid #3b82f6; outline-offset: 2px; }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        /* Flash message animation */
+        .flash-enter { animation: slide-up 0.4s ease-out; }
+        @keyframes slide-up { from { opacity: 0; transform: translateY(-1rem); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="bg-surface-50 min-h-screen flex flex-col font-sans text-slate-800">
+    
+    <!-- Navigation -->
+    <nav class="bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-xl sticky top-0 z-50">
+    <div class="container mx-auto px-6 py-2 flex justify-between items-center">
+            <!-- Logo / Brand -->
+            <a href="/" class="flex items-center -my-3 group">
+
+                <div class="group-hover:scale-105 transition-transform duration-300">
+                    <img 
+                        src="{{ url_for('static', filename='images/logo.png') }}" 
+                        alt="Atlancia Worldwide Logo"
+                        class="h-32 md:h-36 w-auto object-contain drop-shadow-lg"
+                    >
+                </div>
+
+            </a>
+
+            <!-- Auth Section -->
+            {% if session.user_id %}
+            <div class="flex items-center gap-3">
+                <span class="hidden sm:inline text-sm text-primary-100">Welcome, <strong class="text-white">{{ session.username }}</strong></span>
+                <a href="/logout" class="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 px-4 py-2 rounded-lg text-sm font-medium transition-all hover:scale-[1.02] active:scale-[0.98]">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                    Logout
+                </a>
+                <!-- Avatar fallback -->
+                <div class="w-9 h-9 bg-white/20 rounded-full flex items-center justify-center text-sm font-bold border border-white/30">
+                    {{ session.username[0].upper() if session.username else 'U' }}
+                </div>
+            </div>
+            {% else %}
+            <div class="flex items-center gap-2">
+                <a href="/admin/login" class="text-sm text-primary-100 hover:text-white transition-colors">Admin Login</a>
+                <span class="text-primary-300">•</span>
+                <a href="/sales/login" class="text-sm text-primary-100 hover:text-white transition-colors">Sales Login</a>
+            </div>
+            {% endif %}
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <div class="container mx-auto px-4 -mt-4 mb-6 z-40">
+            {% for msg in messages %}
+            <div class="flash-enter bg-emerald-50 border-l-4 border-emerald-500 text-emerald-800 px-5 py-4 rounded-r-xl shadow-sm flex items-start gap-3 animate-fade-in">
+                <svg class="w-5 h-5 mt-0.5 text-emerald-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <p class="text-sm font-medium">{{ msg }}</p>
+                <button onclick="this.parentElement.remove()" class="ml-auto text-emerald-600 hover:text-emerald-800 transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8 flex-1">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-surface-200 mt-auto">
+        <div class="container mx-auto px-4 py-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-slate-500">
+            <p>© {{ now.year if now else 2026 }} <strong class="text-slate-700">Atlancia Worldwide</strong>. All rights reserved.</p>
+            <div class="flex items-center gap-4">
+                <a href="#" class="hover:text-primary-600 transition-colors">Privacy</a>
+                <a href="#" class="hover:text-primary-600 transition-colors">Terms</a>
+                <a href="#" class="hover:text-primary-600 transition-colors">Support</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Optional: Auto-dismiss flash messages after 5s -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const flashes = document.querySelectorAll('[class*="flash-enter"]');
+            flashes.forEach(flash => {
+                setTimeout(() => {
+                    flash.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                    flash.style.opacity = '0';
+                    flash.style.transform = 'translateY(-0.5rem)';
+                    setTimeout(() => flash.remove(), 300);
+                }, 5000);
+            });
+        });
+    </script>
+</body>
+</html>
