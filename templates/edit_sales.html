@@ -1,0 +1,423 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+    :root{
+        --bg:#f8fafc;
+        --card:#ffffff;
+        --primary:#2563eb;
+        --primary-hover:#1d4ed8;
+        --border:#e2e8f0;
+        --text:#0f172a;
+        --muted:#64748b;
+        --success:#10b981;
+        --shadow:0 10px 25px rgba(15,23,42,0.06);
+        --radius:20px;
+    }
+
+    .edit-wrapper{
+        min-height:100vh;
+        background:var(--bg);
+        padding:40px 20px;
+    }
+
+    .edit-container{
+        max-width:1100px;
+        margin:auto;
+    }
+
+    .top-bar{
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        margin-bottom:30px;
+        flex-wrap:wrap;
+        gap:20px;
+    }
+
+    .page-title h1{
+        margin:0;
+        font-size:2rem;
+        font-weight:800;
+        color:var(--text);
+    }
+
+    .page-title p{
+        margin-top:8px;
+        color:var(--muted);
+        font-size:0.95rem;
+    }
+
+    .back-btn{
+        text-decoration:none;
+        padding:12px 18px;
+        background:white;
+        border:1px solid var(--border);
+        border-radius:12px;
+        color:var(--text);
+        font-weight:600;
+        transition:.2s;
+    }
+
+    .back-btn:hover{
+        background:#f1f5f9;
+    }
+
+    .edit-card{
+        background:var(--card);
+        border-radius:var(--radius);
+        box-shadow:var(--shadow);
+        border:1px solid var(--border);
+        overflow:hidden;
+    }
+
+    .card-header{
+        padding:28px;
+        border-bottom:1px solid var(--border);
+        background:linear-gradient(to right,#eff6ff,#ffffff);
+    }
+
+    .profile-section{
+        display:flex;
+        align-items:center;
+        gap:18px;
+    }
+
+    .profile-avatar{
+        width:70px;
+        height:70px;
+        border-radius:50%;
+        background:linear-gradient(135deg,#2563eb,#60a5fa);
+        color:white;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        font-size:1.8rem;
+        font-weight:700;
+    }
+
+    .profile-info h2{
+        margin:0;
+        font-size:1.4rem;
+        color:var(--text);
+    }
+
+    .profile-info span{
+        color:var(--muted);
+        font-size:0.9rem;
+    }
+
+    .card-body{
+        padding:30px;
+    }
+
+    .grid-2{
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        gap:20px;
+    }
+
+    .form-group{
+        margin-bottom:22px;
+    }
+
+    .form-group label{
+        display:block;
+        margin-bottom:8px;
+        font-size:0.9rem;
+        font-weight:700;
+        color:var(--text);
+    }
+
+    .input{
+        width:100%;
+        padding:14px 16px;
+        border:1px solid var(--border);
+        border-radius:14px;
+        background:white;
+        font-size:0.95rem;
+        transition:.2s;
+        box-sizing:border-box;
+    }
+
+    .input:focus{
+        outline:none;
+        border-color:var(--primary);
+        box-shadow:0 0 0 4px rgba(37,99,235,0.08);
+    }
+
+    .section-title{
+        margin-top:10px;
+        margin-bottom:25px;
+    }
+
+    .section-title h3{
+        margin:0;
+        font-size:1.2rem;
+        color:var(--text);
+    }
+
+    .section-title p{
+        margin-top:6px;
+        color:var(--muted);
+        font-size:0.9rem;
+    }
+
+    .commission-card{
+        border:1px solid var(--border);
+        border-radius:18px;
+        padding:22px;
+        margin-bottom:18px;
+        transition:.2s;
+        background:#fff;
+    }
+
+    .commission-card:hover{
+        border-color:#bfdbfe;
+        box-shadow:0 8px 20px rgba(37,99,235,0.06);
+    }
+
+    .commission-header{
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        margin-bottom:18px;
+        flex-wrap:wrap;
+        gap:10px;
+    }
+
+    .commission-header h4{
+        margin:0;
+        font-size:1rem;
+        font-weight:700;
+        color:var(--text);
+    }
+
+    .service-badge{
+        background:#eff6ff;
+        color:#2563eb;
+        padding:6px 12px;
+        border-radius:999px;
+        font-size:0.78rem;
+        font-weight:700;
+    }
+
+    .commission-grid{
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        gap:16px;
+    }
+
+    .input-icon{
+        position:relative;
+    }
+
+    .input-icon span{
+        position:absolute;
+        top:50%;
+        transform:translateY(-50%);
+        right:16px;
+        color:var(--muted);
+        font-weight:700;
+    }
+
+    .save-btn{
+        width:100%;
+        margin-top:30px;
+        border:none;
+        background:linear-gradient(135deg,#2563eb,#1d4ed8);
+        color:white;
+        padding:16px;
+        border-radius:16px;
+        font-size:1rem;
+        font-weight:700;
+        cursor:pointer;
+        transition:.25s;
+    }
+
+    .save-btn:hover{
+        transform:translateY(-2px);
+        box-shadow:0 12px 24px rgba(37,99,235,0.25);
+    }
+
+    @media(max-width:768px){
+
+        .grid-2{
+            grid-template-columns:1fr;
+        }
+
+        .commission-grid{
+            grid-template-columns:1fr;
+        }
+
+        .card-body{
+            padding:20px;
+        }
+
+        .profile-section{
+            align-items:flex-start;
+        }
+
+    }
+</style>
+
+<div class="edit-wrapper">
+
+    <div class="edit-container">
+
+        <div class="top-bar">
+
+            <div class="page-title">
+                <h1>Update Sales Account</h1>
+                <p>Manage sales profile, credentials, salary and commission structure.</p>
+            </div>
+
+            <a href="/admin/dashboard" class="back-btn">
+                ← Back Dashboard
+            </a>
+
+        </div>
+
+        <div class="edit-card">
+
+            <div class="card-header">
+
+                <div class="profile-section">
+
+                    <div class="profile-avatar">
+                        {{ user.username[0].upper() }}
+                    </div>
+
+                    <div class="profile-info">
+                        <h2>{{ user.username }}</h2>
+                        <span>Sales Representative Account</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="card-body">
+
+                <form method="POST">
+
+                    <div class="grid-2">
+
+                        <div class="form-group">
+                            <label>Username</label>
+
+                            <input type="text"
+                                   name="username"
+                                   class="input"
+                                   value="{{ user.username }}"
+                                   required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>New Password</label>
+
+                            <input type="password"
+                                   name="password"
+                                   class="input"
+                                   placeholder="Leave blank to keep current password">
+                        </div>
+
+                    </div>
+
+                    <div class="form-group">
+                        <label>Base Salary</label>
+
+                        <div class="input-icon">
+
+                            <input type="number"
+                                   name="salary"
+                                   class="input"
+                                   value="{{ user.base_salary }}"
+                                   step="0.01"
+                                   required>
+
+                            <span>₹</span>
+
+                        </div>
+                    </div>
+
+                    <div class="section-title">
+                        <h3>Commission Configuration</h3>
+                        <p>Manage service-wise commission percentage for Indian and Foreign clients.</p>
+                    </div>
+
+                    {% for key, label in service_labels.items() %}
+
+                    <div class="commission-card">
+
+                        <div class="commission-header">
+
+                            <h4>{{ label }}</h4>
+
+                            <div class="service-badge">
+                                Service Commission
+                            </div>
+
+                        </div>
+
+                        <div class="commission-grid">
+
+                            <div class="form-group">
+
+                                <label>Indian Client %</label>
+
+                                <div class="input-icon">
+
+                                    <input type="number"
+                                           name="indian_{{ key }}"
+                                           class="input"
+                                           step="0.01"
+                                           value="{{ user.commission_config.indian.get(key, 0) }}"
+                                           placeholder="0">
+
+                                    <span>%</span>
+
+                                </div>
+
+                            </div>
+
+                            <div class="form-group">
+
+                                <label>Foreign Client %</label>
+
+                                <div class="input-icon">
+
+                                    <input type="number"
+                                           name="foreign_{{ key }}"
+                                           class="input"
+                                           step="0.01"
+                                           value="{{ user.commission_config.foreign.get(key, 0) }}"
+                                           placeholder="0">
+
+                                    <span>%</span>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    {% endfor %}
+
+                    <button type="submit" class="save-btn">
+                        Update Sales Account
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

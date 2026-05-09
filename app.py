@@ -142,18 +142,101 @@ def sales_details(sales_id):
 @app.route('/admin/create_sales', methods=['POST'])
 @login_required('admin')
 def create_sales():
-    comm_config = {'indian': {}, 'foreign': {}}
+
+    comm_config = {
+        'indian': {},
+        'foreign': {}
+    }
+
     for region in ['indian', 'foreign']:
+
         for key in SERVICE_KEYS:
-            comm_config[region][key] = float(request.form.get(f'{region}_{key}', 0))
-            
+
+            value = request.form.get(f'{region}_{key}')
+
+            comm_config[region][key] = float(value) if value else 0
+
     supabase.table('users').insert({
-        'username': request.form['username'], 'password_hash': generate_password_hash(request.form['password']),
-        'role': 'sales', 'base_salary': float(request.form['salary'] or 0), 'commission_config': comm_config
+
+        'username': request.form['username'],
+
+        'password_hash': generate_password_hash(
+            request.form['password']
+        ),
+
+        'role': 'sales',
+
+        'base_salary': float(
+            request.form['salary'] or 0
+        ),
+
+        'commission_config': comm_config
+
     }).execute()
-    flash(f'Sales account created for {request.form["username"]}')
+
+    flash(
+        f'Sales account created for {request.form["username"]}'
+    )
+
     return redirect(url_for('admin_dashboard'))
 
+@app.route('/admin/edit_sales/<sales_id>', methods=['GET', 'POST'])
+@login_required('admin')
+def edit_sales(sales_id):
+
+    user_res = supabase.table('users') \
+        .select('*') \
+        .eq('id', sales_id) \
+        .eq('role', 'sales') \
+        .execute()
+
+    if not user_res.data:
+        flash('Sales account not found')
+        return redirect(url_for('admin_dashboard'))
+
+    user = user_res.data[0]
+
+    if request.method == 'POST':
+
+        comm_config = {
+            'indian': {},
+            'foreign': {}
+        }
+
+        for region in ['indian', 'foreign']:
+
+            for key in SERVICE_KEYS:
+
+                value = request.form.get(f'{region}_{key}')
+
+                comm_config[region][key] = float(value) if value else 0
+
+        update_data = {
+            'username': request.form['username'],
+            'base_salary': float(request.form['salary'] or 0),
+            'commission_config': comm_config
+        }
+
+        # OPTIONAL PASSWORD UPDATE
+        password = request.form.get('password')
+
+        if password:
+            update_data['password_hash'] = generate_password_hash(password)
+
+        supabase.table('users') \
+            .update(update_data) \
+            .eq('id', sales_id) \
+            .execute()
+
+        flash('Sales account updated successfully.')
+
+        return redirect(url_for('admin_dashboard'))
+
+    return render_template(
+        'edit_sales.html',
+        user=user,
+        service_labels=SERVICE_LABELS
+    )
 @app.route('/admin/assign_commission', methods=['POST'])
 @login_required('admin')
 def assign_commission():

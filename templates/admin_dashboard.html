@@ -230,36 +230,81 @@
     <div class="dash-card">
       <div class="card-header"><h2>Create Sales Account & Commission Rates</h2></div>
       <div class="card-body">
-        <form class="dash-form" action="#" method="POST">
-          <div class="form-group">
-            <label>Username</label>
-            <input type="text" name="username" class="dash-input" placeholder="sales_person" required>
-          </div>
-          <div class="form-group">
-            <label>Password</label>
-            <input type="password" name="password" class="dash-input" placeholder="••••••••" required>
-          </div>
-          <div class="form-group">
-            <label>Base Salary (₹)</label>
-            <input type="number" name="base_salary" class="dash-input" placeholder="5000" step="0.01" required>
-          </div>
+        <form id="createSalesForm"
+      action="{{ url_for('create_sales') }}"
+      method="POST"
+      enctype="multipart/form-data">
 
-          <h4 style="margin: 1.5rem 0 0.75rem; font-size: 0.95rem;">Commission Rates (%) by Service & Region</h4>
-          <div class="comm-grid">
-            <div class="label">Service</div>
-            <div class="label">🇮🇳 Indian Clients</div>
-            <div class="label">🌍 Foreign Clients</div>
-          </div>
-          {% for key, label in service_labels.items() %}
-          <div class="comm-grid">
-            <div style="font-weight:500;">{{ label }}</div>
-            <input type="number" name="indian_{{ key }}" class="dash-input" placeholder="0.00" step="0.01">
-            <input type="number" name="foreign_{{ key }}" class="dash-input" placeholder="0.00" step="0.01">
-          </div>
-          {% endfor %}
-          
-          <button type="submit" class="btn btn-primary" style="width:100%; margin-top:0.5rem;">Create Sales Account</button>
-        </form>
+    <div class="form-group">
+        <label>Username</label>
+        <input type="text"
+               name="username"
+               class="dash-input"
+               placeholder="sales_person"
+               required>
+    </div>
+
+    <div class="form-group">
+        <label>Password</label>
+        <input type="password"
+               name="password"
+               class="dash-input"
+               placeholder="••••••••"
+               required>
+    </div>
+
+    <div class="form-group">
+        <label>Base Salary (₹)</label>
+        <input type="number"
+               name="salary"
+               class="dash-input"
+               placeholder="5000"
+               step="0.01"
+               required>
+    </div>
+
+    <h4 style="margin: 1.5rem 0 0.75rem; font-size: 0.95rem;">
+        Commission Rates (%) by Service & Region
+    </h4>
+
+    {% for key, label in service_labels.items() %}
+
+    <div style="margin-bottom:1rem;">
+
+        <label style="font-weight:600;">
+            {{ label }}
+        </label>
+
+        <div style="display:flex; gap:1rem; margin-top:0.5rem;">
+
+            <input type="number"
+                   name="indian_{{ key }}"
+                   class="dash-input"
+                   placeholder="Indian %"
+                   step="0.01">
+
+            <input type="number"
+                   name="foreign_{{ key }}"
+                   class="dash-input"
+                   placeholder="Foreign %"
+                   step="0.01">
+
+        </div>
+
+    </div>
+
+    {% endfor %}
+
+    <button type="submit"
+            id="createSalesBtn"
+            class="btn btn-primary"
+            style="width:100%; margin-top:1rem;">
+
+        Create Sales Account
+
+    </button>
+
+</form>
       </div>
     </div>
 
@@ -280,20 +325,53 @@
             </div>
             
             <form action="/admin/assign_commission" method="POST" style="margin-top:0.75rem;">
+
+              <!-- Hidden IDs -->
               <input type="hidden" name="lead_id" value="{{ l.id }}">
+              <input type="hidden" name="sales_id" value="{{ l.sales_id }}">
+
+              <!-- Region + Service -->
               <div style="display:flex; gap:0.5rem; margin-bottom:0.75rem;">
-                <select name="region" class="dash-input" style="flex:1;">
-                  <option value="indian">🇮🇳 Indian</option>
-                  <option value="foreign">🌍 Foreign</option>
-                </select>
-                <select name="service" class="dash-input" style="flex:1;">
-                  {% for key, label in service_labels.items() %}
-                    <option value="{{ key }}">{{ label }}</option>
-                  {% endfor %}
-                </select>
+
+                  <select name="region" class="dash-input" style="flex:1;" required>
+                      <option value="indian">🇮🇳 Indian</option>
+                      <option value="foreign">🌍 Foreign</option>
+                  </select>
+
+                  <select name="service" class="dash-input" style="flex:1;" required>
+                      {% for key, label in service_labels.items() %}
+                          <option value="{{ key }}">{{ label }}</option>
+                      {% endfor %}
+                  </select>
+
               </div>
-              <button type="submit" class="btn btn-success" style="width:100%;">Assign Commission</button>
-            </form>
+
+              <!-- Total Amount -->
+              <input type="number"
+                    name="total_amount"
+                    class="dash-input"
+                    placeholder="Total Project Amount"
+                    step="0.01"
+                    required
+                    style="margin-bottom:0.75rem;">
+
+              <!-- Advance Payment -->
+              <input type="number"
+                    name="advance_payment"
+                    class="dash-input"
+                    placeholder="Advance Payment (Optional)"
+                    step="0.01"
+                    value="0"
+                    style="margin-bottom:0.75rem;">
+
+              <!-- Submit -->
+              <button type="submit"
+                      class="btn btn-success"
+                      style="width:100%;">
+                  Assign Commission
+              </button>
+
+          </form>
           </div>
           {% endfor %}
         </div>
@@ -343,7 +421,7 @@
                           Salary & Commission History
                       </a>
 
-                      <a href="#" class="btn btn-sm btn-outline">
+                      <a href="/admin/edit_sales/{{ u.id }}" class="btn btn-sm btn-primary">
                           Update
                       </a>
                   </div>
@@ -401,15 +479,54 @@
                 </td>
                 <td>
                   <div class="actions-cell">
-                    <a href="/admin/client_details/{{ c.id }}" class="btn btn-sm btn-outline">View</a>
+
+                    <!-- View Client -->
+                    <a href="/admin/client_details/{{ c.id }}" 
+                      class="btn btn-sm btn-outline">
+                      View
+                    </a>
+
+                    <!-- Mark Payment -->
                     {% if not c.is_payment_cleared %}
-                    <form action="#" method="POST"><button type="submit" class="btn btn-sm btn-success">Mark Payment</button></form>
+                    <form action="/admin/update_client/{{ c.id }}" method="POST">
+                      
+                      <input type="hidden" 
+                            name="action" 
+                            value="mark_payment">
+
+                      <button type="submit" 
+                              class="btn btn-sm btn-success">
+                              Mark Payment
+                      </button>
+
+                    </form>
                     {% endif %}
-                    {% if c.is_commission_paid %}
-                    <button class="btn btn-sm btn-outline">Unmark Comm.</button>
-                    {% else %}
-                    <form action="#" method="POST"><button type="submit" class="btn btn-sm btn-primary">Pay Comm.</button></form>
-                    {% endif %}
+
+                    <!-- Commission Buttons -->
+                    <form action="/admin/update_client/{{ c.id }}" method="POST">
+
+                      <input type="hidden" 
+                            name="action" 
+                            value="toggle_commission">
+
+                      {% if c.is_commission_paid %}
+
+                      <button type="submit" 
+                              class="btn btn-sm btn-outline">
+                              Unmark Comm.
+                      </button>
+
+                      {% else %}
+
+                      <button type="submit" 
+                              class="btn btn-sm btn-primary">
+                              Pay Comm.
+                      </button>
+
+                      {% endif %}
+
+                    </form>
+
                   </div>
                 </td>
               </tr>

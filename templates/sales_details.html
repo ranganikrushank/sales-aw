@@ -146,15 +146,69 @@
       <span class="sd-stat-label">Base Salary</span>
       <span class="sd-stat-value highlight">₹{{ user.base_salary }}</span>
     </div>
+
     <div class="sd-stat-card">
       <span class="sd-stat-label">Total Leads</span>
       <span class="sd-stat-value">{{ leads|length }}</span>
     </div>
+
     <div class="sd-stat-card">
       <span class="sd-stat-label">Converted Clients</span>
       <span class="sd-stat-value">{{ clients|length }}</span>
     </div>
   </div>
+
+  <!-- ADD THIS COMPLETE SECTION -->
+  <div class="sd-section">
+    <div class="sd-section-header">
+      <h2>Commission Chart</h2>
+    </div>
+
+    <div class="sd-card">
+      <div class="sd-table-wrapper">
+        <table class="sd-table">
+          <thead>
+            <tr>
+              <th>Service</th>
+              <th>Indian Client</th>
+              <th>Foreign Client</th>
+            </tr>
+          </thead>
+
+          <tbody>
+
+            {% for key, label in service_labels.items() %}
+
+            <tr>
+
+              <td>
+                <div class="sd-company-name">
+                  {{ label }}
+                </div>
+              </td>
+
+              <td>
+                <span class="sd-badge sd-badge-success">
+                  {{ user.commission_config.indian.get(key, 0) }}%
+                </span>
+              </td>
+
+              <td>
+                <span class="sd-badge sd-badge-active">
+                  {{ user.commission_config.foreign.get(key, 0) }}%
+                </span>
+              </td>
+
+            </tr>
+
+            {% endfor %}
+
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <!-- END -->
 
   <div class="sd-section">
     <div class="sd-section-header">
