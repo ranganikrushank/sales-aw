@@ -207,7 +207,18 @@
 
                     </label>
 
-                    <label class="flex items-center gap-3 border rounded-lg p-3 md:col-span-2">
+                    <label class="flex items-center gap-3 border rounded-lg p-3">
+
+                        <input type="checkbox"
+                               name="services"
+                               value="Whatsapp Automation"
+                               {% if 'WhatsApp Automation' in lead.services %}checked{% endif %}>
+
+                        WhatsApp Automation
+
+                    </label>
+
+                    <label class="flex items-center gap-3 border rounded-lg p-3">
 
                         <input type="checkbox"
                                name="services"

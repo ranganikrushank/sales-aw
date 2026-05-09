@@ -176,7 +176,7 @@
   </header>
 
   <div class="al-card">
-    <form class="al-form" action="#" method="POST">
+    <form class="al-form" action="{{ url_for('sales_add_lead') }}" method="POST">
       <!-- Company Name -->
       <div class="al-field">
         <label class="al-label" for="company_name">Company Name *</label>
@@ -193,6 +193,28 @@
           <label class="al-label" for="phone">Phone *</label>
           <input type="tel" id="phone" name="phone" class="al-input" placeholder="+1 (555) 123-4567" required>
         </div>
+        <div class="al-field">
+            <label class="al-label" for="country">Country *</label>
+
+            <input 
+                type="text"
+                id="country"
+                name="country"
+                class="al-input"
+                placeholder="India"
+                required
+            >
+        </div>
+       <div class="al-field">
+          <label class="al-label" for="city">City *</label>
+          <input 
+              type="text"
+              id="city"
+              name="city"
+              class="al-input"
+              placeholder="Bangalore"
+              required
+          >
       </div>
 
       <!-- Platform of Finding -->
@@ -238,10 +260,12 @@
         <label class="al-label">Services Needed *</label>
         <div class="al-multiselect">
           <select id="services" name="services" class="al-select" multiple size="4">
-            <option value="Consulting">Consulting</option>
-            <option value="Development">Development</option>
-            <option value="Marketing">Marketing</option>
-            <option value="Support">Support</option>
+            <option value="Website Development">Website Development</option>
+            <option value="Custom Software Development">Custom Software Development</option>
+            <option value="App Development">App Development</option>
+            <option value="AI Software & AI Agents">AI Software & AI Agents</option>
+            <option value="E Commerce Website">E Commerce Website</option>
+            <option value="WhatsApp Automation">WhatsApp Automation</option>
           </select>
           <span class="al-hint">Hold Ctrl/Cmd to select multiple</span>
           <div class="al-tags" id="selected-tags"></div>

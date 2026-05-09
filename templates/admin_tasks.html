@@ -13,10 +13,10 @@
     <!-- ASSIGN TASK FORM -->
     <section class="card form-card">
         <h2>Assign Daily Task</h2>
-        <form method="POST" action="#" class="task-form">
+        <form method="POST" action="{{ url_for('add_daily_task') }}" class="task-form">
             <div class="form-group full-width">
                 <label for="sales_person">Sales Person</label>
-                <select id="sales_person" name="sales_person" required class="form-control">
+                <select id="sales_person" name="sales_id" required class="form-control">
                     <option value="" disabled selected>Select sales person...</option>
                     {% for u in sales_users %}
                         <option value="{{ u.id }}">{{ u.username }}</option>

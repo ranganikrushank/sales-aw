@@ -80,7 +80,7 @@ def sales_dashboard():
     # Clients
     payable_clients = supabase.table('clients') \
         .select(
-            'id, total_amount, commission_amount, service_selected, is_payment_cleared, is_commission_paid'
+            'custom_client_id, total_amount, commission_amount, service_selected, is_payment_cleared, is_commission_paid'
         ) \
         .eq('sales_id', uid) \
         .execute().data

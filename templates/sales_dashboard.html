@@ -324,7 +324,7 @@
             {% for c in clients %}
             <tr>
               <td>
-                <span class="sd-company-name">{{ c.id[:8] }}...</span>
+                <span class="sd-company-name">{{ c.custom_client_id }}</span>
               </td>
               <td>{{ c.service_selected }}</td>
               <td><span class="sd-currency">₹{{ c.total_amount }}</span></td>
