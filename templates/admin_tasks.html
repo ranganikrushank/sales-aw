@@ -1,0 +1,819 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="admin-tasks-wrapper">
+    <!-- HEADER -->
+    <header class="page-header">
+        <div class="header-text">
+            <h1>Daily Task Management</h1>
+            <p>Assign and monitor sales tasks</p>
+        </div>
+        <a href="/admin/dashboard" class="btn-back">← Back Dashboard</a>
+    </header>
+
+    <!-- ASSIGN TASK FORM -->
+    <section class="card form-card">
+        <h2>Assign Daily Task</h2>
+        <form method="POST" action="#" class="task-form">
+            <div class="form-group full-width">
+                <label for="sales_person">Sales Person</label>
+                <select id="sales_person" name="sales_person" required class="form-control">
+                    <option value="" disabled selected>Select sales person...</option>
+                    {% for u in sales_users %}
+                        <option value="{{ u.id }}">{{ u.username }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group full-width">
+                <label for="task_title">Task Title</label>
+                <input type="text" id="task_title" name="task_title" placeholder="e.g., Follow up with Client X" required class="form-control">
+            </div>
+
+            <div class="form-group full-width">
+                <label for="task_description">Description</label>
+                <textarea id="task_description" name="task_description" rows="3" placeholder="Enter task details..." required class="form-control"></textarea>
+            </div>
+
+            <div class="form-group full-width">
+                <label class="form-label">Priority</label>
+                <div class="priority-group">
+                    <label class="radio-label">
+                        <input type="radio" name="priority" value="low" required>
+                        <span class="badge low">Low</span>
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="priority" value="medium">
+                        <span class="badge medium">Medium</span>
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="priority" value="high">
+                        <span class="badge high">High</span>
+                    </label>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-submit full-width">Assign Task</button>
+        </form>
+    </section>
+
+    <!-- FILTERS -->
+    <section class="card filter-card">
+        <div class="card-header-row">
+            <h2>Filters</h2>
+            <button id="resetFilters" class="btn-reset" style="display:none;">Clear All Filters</button>
+        </div>
+        
+        <div class="filter-bar">
+            <div class="filter-row">
+                <div class="filter-item">
+                    <label for="personFilter">Filter by Sales Person</label>
+                    <select id="personFilter" class="form-control">
+                        <option value="all">All Sales Persons</option>
+                        {% for u in sales_users %}
+                            <option value="{{ u.username }}">{{ u.username }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="filter-item">
+                    <label for="dateFilter">Filter by Date</label>
+                    <input type="date" id="dateFilter" class="form-control">
+                </div>
+            </div>
+
+            <div class="filter-row">
+                <div class="filter-item">
+                    <label class="form-label">Status</label>
+                    <div class="btn-group">
+                        <button class="filter-btn active" data-filter="status" data-value="all">All</button>
+                        <button class="filter-btn" data-filter="status" data-value="completed">Completed</button>
+                        <button class="filter-btn" data-filter="status" data-value="pending">Pending</button>
+                    </div>
+                </div>
+
+                <div class="filter-item">
+                    <label class="form-label">Priority</label>
+                    <div class="btn-group">
+                        <button class="filter-btn active" data-filter="priority" data-value="all">All</button>
+                        <button class="filter-btn" data-filter="priority" data-value="high">High</button>
+                        <button class="filter-btn" data-filter="priority" data-value="medium">Medium</button>
+                        <button class="filter-btn" data-filter="priority" data-value="low">Low</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- GROUPED TABLES CONTAINER -->
+    <div id="tables-container" class="tables-container">
+        <div id="loading-state" class="loading-state">Loading tasks...</div>
+    </div>
+
+    <div id="empty-state" class="empty-state" style="display:none;">
+        <p>No tasks found for the selected filters.</p>
+    </div>
+</div>
+
+<!-- HIDDEN RAW DATA FOR JS PROCESSING -->
+<div id="raw-tasks" style="display:none;">
+    {% if tasks %}
+        {% for task in tasks %}
+        <div class="raw-task" 
+             data-id="{{ task.id }}"
+             data-title="{{ task.task_title }}"
+             data-desc="{{ task.task_description }}"
+             data-status="{{ 'completed' if task.is_completed else 'pending' }}"
+             data-priority="{{ task.priority }}"
+             data-date="{{ task.task_date }}"
+             data-person="{{ task.users.username }}">
+        </div>
+        {% endfor %}
+    {% endif %}
+</div>
+
+<style>
+    :root {
+        --bg: #f8fafc;
+        --card: #ffffff;
+        --border: #e2e8f0;
+        --text-main: #0f172a;
+        --text-muted: #64748b;
+        --primary: #3b82f6;
+        --primary-hover: #2563eb;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --radius: 12px;
+        --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        --touch-target: 44px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    .admin-tasks-wrapper {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 1rem;
+        font-family: system-ui, -apple-system, sans-serif;
+        background: var(--bg);
+        min-height: 100vh;
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1.5rem;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .header-text h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        line-height: 1.2;
+    }
+
+    .header-text p {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        margin-top: 0.25rem;
+    }
+
+    .btn-back {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.6rem 1rem;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        color: var(--text-muted);
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 0.9rem;
+        min-height: var(--touch-target);
+        transition: all 0.2s;
+    }
+
+    .btn-back:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+    }
+
+    .card {
+        background: var(--card);
+        border-radius: var(--radius);
+        padding: 1rem;
+        box-shadow: var(--shadow);
+        margin-bottom: 1rem;
+        border: 1px solid var(--border);
+    }
+
+    .card-header-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .card h2 {
+        font-size: 1.15rem;
+        font-weight: 600;
+    }
+
+    .btn-reset {
+        padding: 0.5rem 0.8rem;
+        background: transparent;
+        border: 1px solid var(--text-muted);
+        border-radius: 6px;
+        color: var(--text-muted);
+        font-size: 0.8rem;
+        cursor: pointer;
+        min-height: var(--touch-target);
+    }
+
+    .btn-reset:hover {
+        background: #fee2e2;
+        border-color: var(--danger);
+        color: var(--danger);
+    }
+
+    /* Form Styles */
+    .task-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+    }
+
+    .form-label, .form-group label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text-muted);
+    }
+
+    .form-control {
+        padding: 0.7rem 0.8rem;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        font-size: 0.95rem;
+        background: #fafafa;
+        width: 100%;
+        min-height: var(--touch-target);
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgb(59 130 246 / 0.15);
+        background: #fff;
+    }
+
+    .priority-group {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    .radio-label {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        cursor: pointer;
+        padding: 0.4rem 0.6rem;
+        border-radius: 6px;
+        min-height: var(--touch-target);
+    }
+
+    .radio-label input {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+    }
+
+    .btn-submit {
+        padding: 0.8rem;
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        cursor: pointer;
+        min-height: var(--touch-target);
+        margin-top: 0.5rem;
+    }
+
+    .btn-submit:hover {
+        background: var(--primary-hover);
+    }
+
+    /* Filter Bar */
+    .filter-bar {
+        background: #f8fafc;
+        border-radius: 8px;
+        padding: 0.8rem;
+        border: 1px solid var(--border);
+    }
+
+    .filter-row {
+        display: flex;
+        gap: 0.8rem;
+        margin-bottom: 0.8rem;
+        flex-wrap: wrap;
+    }
+
+    .filter-row:last-child {
+        margin-bottom: 0;
+    }
+
+    .filter-item {
+        flex: 1;
+        min-width: 200px;
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+    }
+
+    .btn-group {
+        display: flex;
+        gap: 0.3rem;
+        flex-wrap: wrap;
+    }
+
+    .filter-btn {
+        padding: 0.5rem 0.8rem;
+        border: 1px solid var(--border);
+        background: white;
+        color: var(--text-muted);
+        font-size: 0.8rem;
+        font-weight: 500;
+        border-radius: 6px;
+        cursor: pointer;
+        min-height: 38px;
+        flex: 1;
+        min-width: 70px;
+    }
+
+    .filter-btn.active {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+    }
+
+    /* Tables Container */
+    .tables-container {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    /* Sales Person Section */
+    .sales-person-section {
+        background: var(--card);
+        border-radius: var(--radius);
+        border: 1px solid var(--border);
+        overflow: hidden;
+    }
+
+    .sales-person-header {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
+        color: white;
+        padding: 1rem 1.25rem;
+        font-size: 1.2rem;
+        font-weight: 700;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .sales-person-badge {
+        background: rgba(255,255,255,0.2);
+        padding: 0.3rem 0.8rem;
+        border-radius: 99px;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    /* Date Table Group */
+    .date-table-group {
+        border-bottom: 1px solid var(--border);
+    }
+
+    .date-table-group:last-child {
+        border-bottom: none;
+    }
+
+    .date-header {
+        background: #f1f5f9;
+        padding: 0.75rem 1.25rem;
+        font-weight: 600;
+        color: var(--text-main);
+        font-size: 0.95rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .date-badge {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        font-weight: 500;
+        background: white;
+        padding: 0.2rem 0.6rem;
+        border-radius: 99px;
+        border: 1px solid var(--border);
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 600px;
+        background: var(--card);
+    }
+
+    .data-table th {
+        background: #fafafa;
+        padding: 0.75rem 1rem;
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        text-align: left;
+        border-bottom: 2px solid var(--border);
+    }
+
+    .data-table td {
+        padding: 0.85rem 1rem;
+        border-bottom: 1px solid var(--border);
+        vertical-align: middle;
+        font-size: 0.9rem;
+    }
+
+    .data-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .data-table tr:hover {
+        background: #f8fafc;
+    }
+
+    .task-cell strong {
+        display: block;
+        margin-bottom: 0.2rem;
+        font-size: 0.92rem;
+    }
+
+    .task-cell p {
+        color: var(--text-muted);
+        font-size: 0.84rem;
+        line-height: 1.4;
+    }
+
+    /* Badges */
+    .badge {
+        display: inline-block;
+        padding: 0.25rem 0.6rem;
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        border-radius: 999px;
+    }
+
+    .badge.high { background: #fee2e2; color: #991b1b; }
+    .badge.medium { background: #fef3c7; color: #92400e; }
+    .badge.low { background: #dcfce7; color: #166534; }
+    .badge.completed { background: #dbeafe; color: #1e40af; }
+    .badge.pending { background: #f3f4f6; color: #4b5563; }
+
+    .loading-state, .empty-state {
+        text-align: center;
+        padding: 3rem 1rem;
+        background: var(--card);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+        font-size: 1rem;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+        .admin-tasks-wrapper {
+            padding: 0.75rem;
+        }
+
+        .page-header {
+            flex-direction: column;
+        }
+
+        .btn-back {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .card {
+            padding: 0.8rem;
+        }
+
+        .filter-bar {
+            padding: 0.6rem;
+        }
+
+        .filter-item {
+            min-width: 100%;
+        }
+
+        .btn-group {
+            width: 100%;
+        }
+
+        .filter-btn {
+            flex: 1;
+            text-align: center;
+        }
+
+        .sales-person-header {
+            font-size: 1.05rem;
+            padding: 0.85rem 1rem;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .date-header {
+            font-size: 0.85rem;
+            padding: 0.65rem 0.85rem;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.4rem;
+        }
+
+        .data-table {
+            min-width: 100%;
+            display: block;
+        }
+
+        .data-table thead, .data-table tbody, .data-table th, .data-table td, .data-table tr {
+            display: block;
+        }
+
+        .data-table thead tr {
+            position: absolute;
+            top: -9999px;
+            left: -9999px;
+        }
+
+        .data-table tr {
+            margin-bottom: 0.8rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .data-table td {
+            border: none;
+            border-bottom: 1px solid var(--border);
+            position: relative;
+            padding-left: 50%;
+            padding-top: 0.7rem;
+            padding-bottom: 0.7rem;
+            text-align: right;
+        }
+
+        .data-table td::before {
+            content: attr(data-label);
+            position: absolute;
+            left: 0.7rem;
+            top: 0.7rem;
+            font-weight: 600;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            text-align: left;
+        }
+
+        .data-table td:last-child {
+            border-bottom: none;
+        }
+
+        .task-cell strong, .task-cell p {
+            text-align: left;
+        }
+
+        .task-cell::before {
+            content: "Task:";
+        }
+    }
+
+    @media (max-width: 480px) {
+        .header-text h1 {
+            font-size: 1.3rem;
+        }
+
+        .badge {
+            font-size: 0.65rem;
+            padding: 0.2rem 0.5rem;
+        }
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const rawTasks = document.querySelectorAll('.raw-task');
+    const container = document.getElementById('tables-container');
+    const emptyState = document.getElementById('empty-state');
+    const loadingState = document.getElementById('loading-state');
+    
+    let activePerson = 'all';
+    let activeDate = '';
+    let activeStatus = 'all';
+    let activePriority = 'all';
+
+    const btns = document.querySelectorAll('.filter-btn');
+    const personSelect = document.getElementById('personFilter');
+    const dateInput = document.getElementById('dateFilter');
+    const resetBtn = document.getElementById('resetFilters');
+
+    function renderTables() {
+        loadingState.style.display = 'none';
+        container.innerHTML = '';
+        let totalVisible = 0;
+
+        // Group tasks by sales person
+        const byPerson = {};
+        rawTasks.forEach(task => {
+            const person = task.dataset.person;
+            if (!byPerson[person]) byPerson[person] = [];
+            byPerson[person].push(task);
+        });
+
+        // Sort persons alphabetically
+        const sortedPersons = Object.keys(byPerson).sort();
+
+        sortedPersons.forEach(person => {
+            // Person filter check
+            if (activePerson !== 'all' && activePerson !== person) return;
+
+            // Group by date within person
+            const byDate = {};
+            byPerson[person].forEach(task => {
+                const date = task.dataset.date;
+                if (!byDate[date]) byDate[date] = [];
+                byDate[date].push(task);
+            });
+
+            // Sort dates descending
+            const sortedDates = Object.keys(byDate).sort((a, b) => new Date(b) - new Date(a));
+
+            // Filter dates and tasks
+            const filteredDates = {};
+            sortedDates.forEach(date => {
+                // Date filter check
+                if (activeDate && activeDate !== date) return;
+
+                const tasksInDate = byDate[date].filter(task => {
+                    const matchStatus = activeStatus === 'all' || task.dataset.status === activeStatus;
+                    const matchPriority = activePriority === 'all' || task.dataset.priority === activePriority;
+                    return matchStatus && matchPriority;
+                });
+
+                if (tasksInDate.length > 0) {
+                    filteredDates[date] = tasksInDate;
+                    totalVisible += tasksInDate.length;
+                }
+            });
+
+            if (Object.keys(filteredDates).length === 0) return;
+
+            // Create Sales Person Section
+            const personSection = document.createElement('div');
+            personSection.className = 'sales-person-section';
+            
+            const personHeader = document.createElement('div');
+            personHeader.className = 'sales-person-header';
+            const totalTasks = Object.values(filteredDates).reduce((sum, arr) => sum + arr.length, 0);
+            personHeader.innerHTML = `
+                <span>👤 ${person}</span>
+                <span class="sales-person-badge">${totalTasks} Task${totalTasks !== 1 ? 's' : ''}</span>
+            `;
+            personSection.appendChild(personHeader);
+
+            // Create Date Tables
+            Object.keys(filteredDates).forEach(date => {
+                const tasksInDate = filteredDates[date];
+                
+                const dateGroup = document.createElement('div');
+                dateGroup.className = 'date-table-group';
+                
+                const dateHeader = document.createElement('div');
+                dateHeader.className = 'date-header';
+                dateHeader.innerHTML = `
+                    <span>📅 ${date}</span>
+                    <span class="date-badge">${tasksInDate.length} Task${tasksInDate.length !== 1 ? 's' : ''}</span>
+                `;
+                dateGroup.appendChild(dateHeader);
+
+                const tableWrapper = document.createElement('div');
+                tableWrapper.className = 'table-responsive';
+                const table = document.createElement('table');
+                table.className = 'data-table';
+                table.innerHTML = `
+                    <thead>
+                        <tr>
+                            <th>Task Title</th>
+                            <th>Description</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                `;
+                tableWrapper.appendChild(table);
+                dateGroup.appendChild(tableWrapper);
+
+                tasksInDate.forEach(task => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td data-label="Task Title"><strong>${task.dataset.title}</strong></td>
+                        <td data-label="Description" class="task-cell"><p>${task.dataset.desc}</p></td>
+                        <td data-label="Priority"><span class="badge ${task.dataset.priority}">${task.dataset.priority.charAt(0).toUpperCase() + task.dataset.priority.slice(1)}</span></td>
+                        <td data-label="Status"><span class="badge ${task.dataset.status}">${task.dataset.status.charAt(0).toUpperCase() + task.dataset.status.slice(1)}</span></td>
+                    `;
+                    table.querySelector('tbody').appendChild(row);
+                });
+
+                personSection.appendChild(dateGroup);
+            });
+
+            container.appendChild(personSection);
+        });
+
+        emptyState.style.display = totalVisible === 0 ? 'block' : 'none';
+        updateResetButton();
+    }
+
+    function updateResetButton() {
+        const isActive = activePerson !== 'all' || activeDate || activeStatus !== 'all' || activePriority !== 'all';
+        resetBtn.style.display = isActive ? 'inline-flex' : 'none';
+    }
+
+    // Event Listeners
+    btns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const type = btn.dataset.filter;
+            const value = btn.dataset.value;
+            
+            btn.closest('.btn-group').querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            if (type === 'status') activeStatus = value;
+            if (type === 'priority') activePriority = value;
+            
+            renderTables();
+        });
+    });
+
+    personSelect.addEventListener('change', (e) => {
+        activePerson = e.target.value;
+        renderTables();
+    });
+
+    dateInput.addEventListener('change', (e) => {
+        activeDate = e.target.value;
+        renderTables();
+    });
+
+    resetBtn.addEventListener('click', () => {
+        activePerson = 'all';
+        activeDate = '';
+        activeStatus = 'all';
+        activePriority = 'all';
+        
+        personSelect.value = 'all';
+        dateInput.value = '';
+        
+        btns.forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.filter-btn[data-value="all"]').forEach(b => b.classList.add('active'));
+        
+        renderTables();
+    });
+
+    // Initial Render
+    renderTables();
+});
+</script>
+{% endblock %}

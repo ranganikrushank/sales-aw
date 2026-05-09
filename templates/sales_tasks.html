@@ -1,0 +1,341 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="sales-tasks-wrapper">
+    <header class="page-header">
+        <div class="header-text">
+            <h1>My Daily Tasks</h1>
+            <p>View and manage your assigned work</p>
+        </div>
+        <a href="/sales/dashboard" class="btn-back">← Back to Dashboard</a>
+    </header>
+
+    <!-- FILTER CONTROLS -->
+    <div class="filter-bar">
+        <div class="filter-group date-group">
+            <label for="dateFilter">Filter by Date:</label>
+            <input type="date" id="dateFilter">
+        </div>
+        <div class="divider"></div>
+        <div class="filter-group">
+            <span class="filter-label">Status:</span>
+            <button class="filter-btn active" data-filter="status" data-value="all">All</button>
+            <button class="filter-btn" data-filter="status" data-value="completed">Completed</button>
+            <button class="filter-btn" data-filter="status" data-value="pending">Pending</button>
+        </div>
+        <div class="divider"></div>
+        <div class="filter-group">
+            <span class="filter-label">Priority:</span>
+            <button class="filter-btn active" data-filter="priority" data-value="all">All</button>
+            <button class="filter-btn" data-filter="priority" data-value="high">High</button>
+            <button class="filter-btn" data-filter="priority" data-value="medium">Medium</button>
+            <button class="filter-btn" data-filter="priority" data-value="low">Low</button>
+        </div>
+        <button id="resetFilters" class="btn-reset" style="display:none;">Clear</button>
+    </div>
+
+    <!-- DATE-GROUPED TABLES CONTAINER -->
+    <div id="tables-container" class="tables-container">
+        <!-- Tables will be generated dynamically by JS -->
+        <div id="loading-state" class="loading-state">Loading tasks...</div>
+    </div>
+
+    <div id="empty-state" class="empty-state" style="display:none;">
+        <p>No tasks found for the selected filters.</p>
+    </div>
+</div>
+
+<!-- HIDDEN RAW DATA FOR JS PROCESSING (Backend Safe) -->
+<div id="raw-tasks" style="display:none;">
+    {% if tasks %}
+        {% for task in tasks %}
+        <div class="raw-task" 
+             data-id="{{ task.id }}"
+             data-title="{{ task.task_title }}"
+             data-desc="{{ task.task_description }}"
+             data-status="{{ 'completed' if task.is_completed else 'pending' }}"
+             data-priority="{{ task.priority }}"
+             data-date="{{ task.task_date }}">
+        </div>
+        {% endfor %}
+    {% endif %}
+</div>
+
+<style>
+    /* Scoped Sales Tasks Styles */
+    .sales-tasks-wrapper {
+        --bg: #f8fafc;
+        --card: #ffffff;
+        --border: #e2e8f0;
+        --text-main: #0f172a;
+        --text-muted: #64748b;
+        --primary: #3b82f6;
+        --primary-hover: #2563eb;
+        --success: #10b981;
+        --success-hover: #059669;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --radius: 12px;
+        --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        
+        max-width: 1100px;
+        margin: 2rem auto;
+        padding: 0 1.5rem;
+        font-family: system-ui, -apple-system, sans-serif;
+        color: var(--text-main);
+        background: var(--bg);
+        min-height: calc(100vh - 4rem);
+    }
+
+    .page-header {
+        display: flex; justify-content: space-between; align-items: flex-start;
+        margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;
+    }
+    .header-text h1 { margin: 0; font-size: 1.8rem; font-weight: 700; }
+    .header-text p { margin: 0.3rem 0 0; color: var(--text-muted); }
+    
+    .btn-back {
+        display: inline-flex; align-items: center; padding: 0.5rem 1rem;
+        background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+        color: var(--text-muted); text-decoration: none; font-weight: 500;
+        transition: all 0.2s;
+    }
+    .btn-back:hover { border-color: var(--primary); color: var(--primary); }
+
+    /* Filter Bar */
+    .filter-bar {
+        display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center;
+        background: var(--card); padding: 0.8rem 1rem; border-radius: 10px;
+        box-shadow: var(--shadow); margin-bottom: 1.5rem; border: 1px solid var(--border);
+    }
+    .filter-group { display: flex; align-items: center; gap: 0.5rem; }
+    .filter-label { font-size: 0.8rem; font-weight: 600; color: var(--text-muted); }
+    .divider { width: 1px; height: 28px; background: #cbd5e1; margin: 0 0.25rem; }
+    .filter-btn {
+        padding: 0.4rem 0.8rem; border: 1px solid var(--border); background: transparent;
+        color: var(--text-muted); font-size: 0.8rem; font-weight: 500; border-radius: 6px;
+        cursor: pointer; transition: all 0.2s;
+    }
+    .filter-btn:hover { border-color: var(--primary); color: var(--primary); }
+    .filter-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+    
+    .date-group input[type="date"] {
+        padding: 0.4rem 0.6rem; border: 1px solid var(--border); border-radius: 6px;
+        font-size: 0.85rem; background: white; cursor: pointer; color: var(--text-main);
+    }
+    .btn-reset {
+        padding: 0.4rem 0.8rem; border: 1px solid var(--text-muted); background: transparent;
+        color: var(--text-muted); font-size: 0.8rem; font-weight: 500; border-radius: 6px;
+        cursor: pointer; transition: 0.2s; margin-left: auto;
+    }
+    .btn-reset:hover { background: #fee2e2; border-color: var(--danger); color: var(--danger); }
+
+    /* Tables Container */
+    .tables-container { display: flex; flex-direction: column; gap: 2rem; }
+    .date-table-group { background: var(--card); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); border: 1px solid var(--border); }
+    .date-header {
+        background: #f1f5f9; padding: 0.8rem 1.25rem; font-weight: 600; color: var(--text-main);
+        font-size: 1.05rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;
+    }
+    .date-badge { font-size: 0.8rem; color: var(--text-muted); font-weight: 500; background: white; padding: 0.2rem 0.6rem; border-radius: 99px; border: 1px solid var(--border); }
+    
+    .data-table { width: 100%; border-collapse: collapse; min-width: 500px; }
+    .data-table th {
+        background: #fafafa; padding: 0.75rem 1rem; font-size: 0.75rem; font-weight: 600;
+        text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted);
+        text-align: left; border-bottom: 1px solid var(--border);
+    }
+    .data-table td { padding: 0.85rem 1rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr:hover { background: #f8fafc; }
+    .data-table tr.completed-row { opacity: 0.75; background: #fafafa; }
+    .data-table tr.completed-row td:first-child { color: var(--text-muted); text-decoration: line-through; }
+    
+    .task-title { font-weight: 600; font-size: 0.95rem; margin-bottom: 0.2rem; display: block; }
+    .task-desc { margin: 0; color: var(--text-muted); font-size: 0.85rem; line-height: 1.4; }
+    
+    .badges { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+    .badge {
+        display: inline-block; padding: 0.2rem 0.5rem; font-size: 0.65rem; font-weight: 700;
+        text-transform: uppercase; letter-spacing: 0.5px; border-radius: 999px; line-height: 1.4;
+    }
+    .badge.high { background: #fee2e2; color: #991b1b; }
+    .badge.medium { background: #fef3c7; color: #92400e; }
+    .badge.low { background: #dcfce7; color: #166534; }
+    .badge.completed { background: #dbeafe; color: #1e40af; }
+    .badge.pending { background: #f3f4f6; color: #4b5563; }
+
+    .btn-complete {
+        display: inline-flex; align-items: center; justify-content: center;
+        padding: 0.4rem 0.8rem; background: var(--success); color: white;
+        border: none; border-radius: 6px; font-weight: 600; font-size: 0.75rem;
+        text-decoration: none; transition: background 0.2s; cursor: pointer; white-space: nowrap;
+    }
+    .btn-complete:hover { background: var(--success-hover); }
+
+    .empty-state, .loading-state {
+        text-align: center; padding: 3rem 1rem; background: var(--card);
+        border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid var(--border);
+        color: var(--text-muted); font-size: 1rem;
+    }
+
+    .table-responsive { overflow-x: auto; }
+
+    @media (max-width: 768px) {
+        .sales-tasks-wrapper { margin: 1rem auto; padding: 0 1rem; }
+        .page-header { flex-direction: column; }
+        .filter-bar { flex-direction: column; align-items: stretch; gap: 0.6rem; }
+        .filter-group { justify-content: space-between; flex-wrap: wrap; }
+        .divider { display: none; }
+        .btn-reset { margin-left: 0; margin-top: 0.5rem; }
+        .date-table-group { overflow-x: auto; }
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const rawTasks = document.querySelectorAll('.raw-task');
+    const container = document.getElementById('tables-container');
+    const emptyState = document.getElementById('empty-state');
+    const loadingState = document.getElementById('loading-state');
+    
+    let activeDate = '';
+    let activeStatus = 'all';
+    let activePriority = 'all';
+
+    const btns = document.querySelectorAll('.filter-btn');
+    const dateInput = document.getElementById('dateFilter');
+    const resetBtn = document.getElementById('resetFilters');
+
+    function renderTables() {
+        loadingState.style.display = 'none';
+        container.innerHTML = '';
+        let totalVisible = 0;
+
+        // Group tasks by date
+        const groups = {};
+        rawTasks.forEach(task => {
+            const date = task.dataset.date;
+            if (!groups[date]) groups[date] = [];
+            groups[date].push(task);
+        });
+
+        // Sort dates descending
+        const sortedDates = Object.keys(groups).sort((a, b) => new Date(b) - new Date(a));
+
+        sortedDates.forEach(date => {
+            // Date Filter Check
+            if (activeDate && activeDate !== date) return;
+
+            const tasksInDate = groups[date].filter(task => {
+                const matchStatus = activeStatus === 'all' || task.dataset.status === activeStatus;
+                const matchPriority = activePriority === 'all' || task.dataset.priority === activePriority;
+                return matchStatus && matchPriority;
+            });
+
+            if (tasksInDate.length === 0) return;
+
+            totalVisible += tasksInDate.length;
+
+            // Create Table Group
+            const groupEl = document.createElement('div');
+            groupEl.className = 'date-table-group';
+            
+            const header = document.createElement('div');
+            header.className = 'date-header';
+            header.innerHTML = `
+                <span>📅 ${date}</span>
+                <span class="date-badge">${tasksInDate.length} Task${tasksInDate.length !== 1 ? 's' : ''}</span>
+            `;
+            groupEl.appendChild(header);
+
+            const tableWrapper = document.createElement('div');
+            tableWrapper.className = 'table-responsive';
+            const table = document.createElement('table');
+            table.className = 'data-table';
+            table.innerHTML = `
+                <thead>
+                    <tr>
+                        <th>Task Details</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th style="text-align:right">Action</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            `;
+            tableWrapper.appendChild(table);
+            groupEl.appendChild(tableWrapper);
+
+            tasksInDate.forEach(task => {
+                const isCompleted = task.dataset.status === 'completed';
+                const row = document.createElement('tr');
+                if (isCompleted) row.classList.add('completed-row');
+                
+                row.innerHTML = `
+                    <td>
+                        <span class="task-title">${task.dataset.title}</span>
+                        <p class="task-desc">${task.dataset.desc}</p>
+                    </td>
+                    <td>
+                        <span class="badge ${task.dataset.priority}">${task.dataset.priority.charAt(0).toUpperCase() + task.dataset.priority.slice(1)}</span>
+                    </td>
+                    <td>
+                        <span class="badge ${task.dataset.status}">${task.dataset.status.charAt(0).toUpperCase() + task.dataset.status.slice(1)}</span>
+                    </td>
+                    <td style="text-align:right">
+                        ${!isCompleted ? `<a href="/sales/complete_task/${task.dataset.id}" class="btn-complete">Mark Done</a>` : '<span style="color:#10b981; font-size:0.8rem; font-weight:600;">✓ Done</span>'}
+                    </td>
+                `;
+                table.querySelector('tbody').appendChild(row);
+            });
+
+            container.appendChild(groupEl);
+        });
+
+        emptyState.style.display = totalVisible === 0 ? 'block' : 'none';
+        updateResetButton();
+    }
+
+    function updateResetButton() {
+        const isActive = activeDate || activeStatus !== 'all' || activePriority !== 'all';
+        resetBtn.style.display = isActive ? 'inline-flex' : 'none';
+    }
+
+    // Event Listeners
+    btns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const type = btn.dataset.filter;
+            const value = btn.dataset.value;
+            
+            btn.closest('.filter-group').querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            if (type === 'status') activeStatus = value;
+            if (type === 'priority') activePriority = value;
+            
+            renderTables();
+        });
+    });
+
+    dateInput.addEventListener('change', (e) => {
+        activeDate = e.target.value;
+        renderTables();
+    });
+
+    resetBtn.addEventListener('click', () => {
+        activeDate = '';
+        activeStatus = 'all';
+        activePriority = 'all';
+        dateInput.value = '';
+        
+        btns.forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.filter-btn[data-value="all"]').forEach(b => b.classList.add('active'));
+        
+        renderTables();
+    });
+
+    // Initial Render
+    renderTables();
+});
+</script>
+{% endblock %}

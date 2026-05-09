@@ -67,27 +67,139 @@ def logout():
 @app.route('/sales/dashboard')
 @login_required('sales')
 def sales_dashboard():
+
     uid = session['user_id']
-    leads = supabase.table('leads').select('*').eq('sales_id', uid).order('created_at', desc=True).execute().data
+
+    # Leads
+    leads = supabase.table('leads') \
+        .select('*') \
+        .eq('sales_id', uid) \
+        .order('created_at', desc=True) \
+        .execute().data
+
+    # Clients
+    payable_clients = supabase.table('clients') \
+        .select(
+            'id, total_amount, commission_amount, service_selected, is_payment_cleared, is_commission_paid'
+        ) \
+        .eq('sales_id', uid) \
+        .execute().data
+
+    payable = [
+        c for c in payable_clients
+        if c['is_payment_cleared'] and c['is_commission_paid']
+    ]
+
+    pending = [
+        c for c in payable_clients
+        if not c['is_payment_cleared'] or not c['is_commission_paid']
+    ]
+
+    # Totals
+    total_commission = sum(
+        c['commission_amount'] or 0
+        for c in payable
+    )
+
+    total_revenue = sum(
+        c['total_amount'] or 0
+        for c in payable
+    )
+
+    # User Data
+    user = supabase.table('users') \
+        .select('base_salary, commission_config') \
+        .eq('id', uid) \
+        .execute().data[0]
+
+    comm_config = user.get(
+        'commission_config',
+        {
+            'indian': {},
+            'foreign': {}
+        }
+    )
+
+    # DAILY TASKS
+    daily_tasks = supabase.table('daily_tasks') \
+        .select('*') \
+        .eq('sales_id', uid) \
+        .order('created_at', desc=True) \
+        .execute().data
+
+    return render_template(
+
+        'sales_dashboard.html',
+
+        leads=leads,
+
+        clients=payable,
+
+        pending_clients=pending,
+
+        total_commission=total_commission,
+
+        total_revenue=total_revenue,
+
+        current_salary=user['base_salary'],
+
+        comm_config=comm_config,
+
+        service_labels=SERVICE_LABELS,
+
+        daily_tasks=daily_tasks
+
+    )
+
+@app.route('/admin/tasks')
+@login_required('admin')
+def admin_tasks():
+
+    sales_users = supabase.table('users') \
+        .select('id, username') \
+        .eq('role', 'sales') \
+        .execute().data
+
+    tasks = supabase.table('daily_tasks') \
+        .select('*, users!daily_tasks_sales_id_fkey(username)') \
+        .order('created_at', desc=True) \
+        .execute().data
+
+    return render_template(
+        'admin_tasks.html',
+        sales_users=sales_users,
+        tasks=tasks
+    )
     
-    # Only show/pay commission when Payment is Cleared AND Admin marked Commission as Paid
-    payable_clients = supabase.table('clients').select('id, total_amount, commission_amount, service_selected, is_payment_cleared, is_commission_paid') \
-                        .eq('sales_id', uid).execute().data
+@app.route('/sales/tasks')
+@login_required('sales')
+def sales_tasks():
+
+    uid = session['user_id']
+
+    tasks = supabase.table('daily_tasks') \
+        .select('*') \
+        .eq('sales_id', uid) \
+        .order('created_at', desc=True) \
+        .execute().data
+
+    return render_template(
+        'sales_tasks.html',
+        tasks=tasks
+    )
     
-    payable = [c for c in payable_clients if c['is_payment_cleared'] and c['is_commission_paid']]
-    pending = [c for c in payable_clients if not c['is_payment_cleared'] or not c['is_commission_paid']]
     
-    total_commission = sum(c['commission_amount'] or 0 for c in payable)
-    total_revenue = sum(c['total_amount'] or 0 for c in payable)
-    
-    user = supabase.table('users').select('base_salary, commission_config').eq('id', uid).execute().data[0]
-    comm_config = user.get('commission_config', {'indian': {}, 'foreign': {}})
-    
-    return render_template('sales_dashboard.html', 
-                           leads=leads, clients=payable, pending_clients=pending,
-                           total_commission=total_commission, total_revenue=total_revenue,
-                           current_salary=user['base_salary'], comm_config=comm_config,
-                           service_labels=SERVICE_LABELS)
+@app.route('/sales/complete_task/<task_id>')
+@login_required('sales')
+def complete_task(task_id):
+
+    supabase.table('daily_tasks').update({
+        'is_completed': True
+    }).eq('id', task_id).execute()
+
+    flash('Task marked as completed.')
+
+    return redirect(url_for('sales_dashboard'))
 
 @app.route('/sales/add_lead', methods=['GET', 'POST'])
 @login_required('sales')
@@ -530,6 +642,25 @@ def complete_followup(followup_id, lead_id):
 
     return redirect(url_for('lead_details', lead_id=lead_id))
 
+@app.route('/admin/add_daily_task', methods=['POST'])
+@login_required('admin')
+def add_daily_task():
+
+    supabase.table('daily_tasks').insert({
+
+        'sales_id': request.form['sales_id'],
+
+        'task_title': request.form['task_title'],
+
+        'task_description': request.form['task_description'],
+
+        'priority': request.form['priority']
+
+    }).execute()
+
+    flash('Daily task assigned successfully.')
+
+    return redirect(url_for('admin_dashboard'))
     
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(debug=True)
