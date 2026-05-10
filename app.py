@@ -1,5 +1,5 @@
 import os
-from datetime import datetime
+from datetime import datetime, date
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 from supabase import create_client, Client
@@ -121,10 +121,13 @@ def sales_dashboard():
     )
 
     # DAILY TASKS
+    today = date.today().isoformat()
+
     daily_tasks = supabase.table('daily_tasks') \
         .select('*') \
         .eq('sales_id', uid) \
-        .order('created_at', desc=True) \
+        .lte('task_date', today) \
+        .order('task_date', desc=False) \
         .execute().data
 
     return render_template(
@@ -177,10 +180,13 @@ def sales_tasks():
 
     uid = session['user_id']
 
+    today = date.today().isoformat()
+
     tasks = supabase.table('daily_tasks') \
         .select('*') \
         .eq('sales_id', uid) \
-        .order('created_at', desc=True) \
+        .lte('task_date', today) \
+        .order('task_date', desc=False) \
         .execute().data
 
     return render_template(
@@ -188,10 +194,29 @@ def sales_tasks():
         tasks=tasks
     )
     
-    
 @app.route('/sales/complete_task/<task_id>')
 @login_required('sales')
 def complete_task(task_id):
+
+    uid = session['user_id']
+
+    task_res = supabase.table('daily_tasks') \
+        .select('*') \
+        .eq('id', task_id) \
+        .eq('sales_id', uid) \
+        .execute()
+
+    if not task_res.data:
+        flash('Task not found.')
+        return redirect(url_for('sales_tasks'))
+
+    task = task_res.data[0]
+
+    today = date.today().isoformat()
+
+    if task['task_date'] > today:
+        flash('Future tasks cannot be completed yet.')
+        return redirect(url_for('sales_tasks'))
 
     supabase.table('daily_tasks').update({
         'is_completed': True
@@ -199,8 +224,58 @@ def complete_task(task_id):
 
     flash('Task marked as completed.')
 
-    return redirect(url_for('sales_dashboard'))
+    return redirect(url_for('sales_tasks'))
 
+@app.route('/admin/edit_task/<task_id>', methods=['GET', 'POST'])
+@login_required('admin')
+def edit_task(task_id):
+
+    task_res = supabase.table('daily_tasks') \
+        .select('*') \
+        .eq('id', task_id) \
+        .execute()
+
+    if not task_res.data:
+        flash('Task not found.')
+        return redirect(url_for('admin_tasks'))
+
+    task = task_res.data[0]
+
+    # BLOCK EDIT IF COMPLETED
+    if task['is_completed']:
+        flash('Completed tasks cannot be edited.')
+        return redirect(url_for('admin_tasks'))
+
+    sales_users = supabase.table('users') \
+        .select('id, username') \
+        .eq('role', 'sales') \
+        .execute().data
+
+    if request.method == 'POST':
+
+        supabase.table('daily_tasks').update({
+
+            'sales_id': request.form['sales_id'],
+
+            'task_title': request.form['task_title'],
+
+            'task_description': request.form['task_description'],
+
+            'priority': request.form['priority'],
+
+            'task_date': request.form['task_date']
+
+        }).eq('id', task_id).execute()
+
+        flash('Task updated successfully.')
+
+        return redirect(url_for('admin_tasks'))
+
+    return render_template(
+        'edit_task.html',
+        task=task,
+        sales_users=sales_users
+    )
 @app.route('/sales/add_lead', methods=['GET', 'POST'])
 @login_required('sales')
 def sales_add_lead():
@@ -654,13 +729,17 @@ def add_daily_task():
 
         'task_description': request.form['task_description'],
 
-        'priority': request.form['priority']
+        'priority': request.form['priority'],
+
+        'task_date': request.form['task_date'],
+
+        'is_completed': False
 
     }).execute()
 
     flash('Daily task assigned successfully.')
 
-    return redirect(url_for('admin_dashboard'))
+    return redirect(url_for('admin_tasks'))
     
-if __name__ == '__main__': 
-    app.run(host='0.0.0.0', port=5000)
+if __name__ == '__main__':
+    app.run(debug=True)

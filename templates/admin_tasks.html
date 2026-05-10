@@ -35,6 +35,17 @@
             </div>
 
             <div class="form-group full-width">
+                <label for="task_date">Task Date</label>
+                <input 
+                    type="date" 
+                    id="task_date" 
+                    name="task_date" 
+                    required 
+                    class="form-control"
+                >
+            </div>
+
+            <div class="form-group full-width">
                 <label class="form-label">Priority</label>
                 <div class="priority-group">
                     <label class="radio-label">
@@ -738,6 +749,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             <th>Description</th>
                             <th>Priority</th>
                             <th>Status</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
@@ -751,7 +763,43 @@ document.addEventListener('DOMContentLoaded', () => {
                         <td data-label="Task Title"><strong>${task.dataset.title}</strong></td>
                         <td data-label="Description" class="task-cell"><p>${task.dataset.desc}</p></td>
                         <td data-label="Priority"><span class="badge ${task.dataset.priority}">${task.dataset.priority.charAt(0).toUpperCase() + task.dataset.priority.slice(1)}</span></td>
-                        <td data-label="Status"><span class="badge ${task.dataset.status}">${task.dataset.status.charAt(0).toUpperCase() + task.dataset.status.slice(1)}</span></td>
+                        <td data-label="Status">
+                                <span class="badge ${task.dataset.status}">
+                                    ${task.dataset.status.charAt(0).toUpperCase() + task.dataset.status.slice(1)}
+                                </span>
+                            </td>
+
+                            <td data-label="Action">
+
+                                ${
+                                    task.dataset.status === 'pending'
+                                    ?
+
+                                    `<a href="/admin/edit_task/${task.dataset.id}"
+                                        style="
+                                            background:#3b82f6;
+                                            color:white;
+                                            padding:8px 14px;
+                                            border-radius:8px;
+                                            text-decoration:none;
+                                            font-size:13px;
+                                            font-weight:600;
+                                        ">
+                                        Edit
+                                    </a>`
+
+                                    :
+
+                                    `<span style="
+                                        color:#10b981;
+                                        font-weight:600;
+                                        font-size:13px;
+                                    ">
+                                        Locked
+                                    </span>`
+                                }
+
+                            </td>
                     `;
                     table.querySelector('tbody').appendChild(row);
                 });
