@@ -1,0 +1,225 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+  :root {
+    --primary: #2563eb;
+    --primary-hover: #1d4ed8;
+    --bg: #f8fafc;
+    --card-bg: #ffffff;
+    --text: #1e293b;
+    --text-light: #64748b;
+    --border: #e2e8f0;
+    --hover: #f1f5f9;
+    --radius: 8px;
+  }
+
+  .sales-container {
+    max-width: 1000px;
+    margin: 2rem auto;
+    background: var(--card-bg);
+    padding: 1.5rem;
+    border-radius: var(--radius);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  }
+
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .page-header h2 {
+    margin: 0;
+    color: var(--text);
+    font-size: 1.5rem;
+  }
+
+  .btn-add {
+    display: inline-flex;
+    align-items: center;
+    background: var(--primary);
+    color: #fff;
+    padding: 0.6rem 1.25rem;
+    border-radius: var(--radius);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: background 0.2s, transform 0.1s;
+  }
+  .btn-add:hover { background: var(--primary-hover); }
+  .btn-add:active { transform: scale(0.98); }
+
+  .table-wrapper {
+    overflow-x: auto;
+  }
+
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    color: var(--text);
+    min-width: 650px; /* Prevents crushing on small screens */
+  }
+
+  .data-table th, .data-table td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .data-table th {
+    background: var(--bg);
+    font-weight: 600;
+    color: var(--text-light);
+    position: sticky;
+    top: 0;
+    white-space: nowrap;
+  }
+
+  .data-table tbody tr:hover {
+    background: var(--hover);
+    transition: background 0.15s ease;
+  }
+
+  .data-table .numeric {
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-light);
+    font-style: italic;
+  }
+
+  @media (max-width: 768px) {
+    .sales-container { margin: 1rem; padding: 1rem; }
+    .page-header { flex-direction: column; align-items: flex-start; }
+    .btn-add { width: 100%; justify-content: center; }
+    .data-table th, .data-table td { padding: 0.6rem 0.8rem; font-size: 0.85rem; }
+  }
+</style>
+
+<div class="sales-container">
+  <div class="page-header">
+    <h2>Daily Sales Reports</h2>
+    <a href="/sales/add_report" class="btn-add">+ Add Report</a>
+  </div>
+
+  <div class="table-wrapper">
+    <table class="data-table">
+      <thead>
+
+        <tr>
+
+            <th>Date</th>
+
+            <th>Sales Person</th>
+
+            <th class="numeric">Calls</th>
+
+            <th class="numeric">Emails</th>
+
+            <th class="numeric">WhatsApp</th>
+
+            <th class="numeric">Positive</th>
+
+            <th class="numeric">Negative</th>
+
+            <th class="numeric">Converted</th>
+
+            <th class="numeric">Lost</th>
+
+            <th>Lead Lost Reason</th>
+
+            <th>Client Converted Reason</th>
+
+        </tr>
+
+    </thead>
+      <tbody>
+
+        {% for r in reports %}
+
+        <tr>
+
+            <td>
+                {{ r.report_date }}
+            </td>
+
+            <td>
+                {{ r.users.username }}
+            </td>
+
+            <td class="numeric">
+                {{ r.total_calls }}
+            </td>
+
+            <td class="numeric">
+                {{ r.total_emails }}
+            </td>
+
+            <td class="numeric">
+                {{ r.total_whatsapp }}
+            </td>
+
+            <td class="numeric">
+                {{ r.positive_responses }}
+            </td>
+
+            <td class="numeric">
+                {{ r.negative_responses }}
+            </td>
+
+            <td class="numeric">
+                {{ r.clients_converted }}
+            </td>
+
+            <td class="numeric">
+                {{ r.leads_lost }}
+            </td>
+
+            <td style="min-width:220px;">
+
+                {% if r.lost_reason %}
+
+                    {{ r.lost_reason }}
+
+                {% else %}
+
+                    -
+
+                {% endif %}
+
+            </td>
+
+            <td style="min-width:220px;">
+
+                {% if r.converted_reason %}
+
+                    {{ r.converted_reason }}
+
+                {% else %}
+
+                    -
+
+                {% endif %}
+
+            </td>
+
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="11" class="empty-state">No daily reports available yet.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

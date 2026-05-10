@@ -181,6 +181,10 @@ def sales_tasks():
     uid = session['user_id']
 
     today = date.today().isoformat()
+    
+    current_hour = datetime.now().hour
+
+    allow_reason_submission = current_hour >= 22
 
     tasks = supabase.table('daily_tasks') \
         .select('*') \
@@ -190,9 +194,65 @@ def sales_tasks():
         .execute().data
 
     return render_template(
+
         'sales_tasks.html',
-        tasks=tasks
+
+        tasks=tasks,
+
+        allow_reason_submission=allow_reason_submission
+
     )
+
+@app.route('/sales/incomplete_task/<task_id>', methods=['POST'])
+@login_required('sales')
+def incomplete_task(task_id):
+
+    uid = session['user_id']
+
+    task_res = supabase.table('daily_tasks') \
+        .select('*') \
+        .eq('id', task_id) \
+        .eq('sales_id', uid) \
+        .execute()
+
+    if not task_res.data:
+
+        flash('Task not found.')
+
+        return redirect(url_for('sales_tasks'))
+
+    current_hour = datetime.now().hour
+
+    # ALLOW ONLY AFTER 10 PM
+    if not (current_hour >= 22 or current_hour < 2):
+
+        flash(
+            'Reason submission allowed only after 10 PM.'
+        )
+
+        return redirect(url_for('sales_tasks'))
+
+    reason = request.form['incomplete_reason']
+
+    if not reason.strip():
+
+        flash('Reason is required.')
+
+        return redirect(url_for('sales_tasks'))
+
+    supabase.table('daily_tasks').update({
+
+        'incomplete_reason': reason,
+
+        'incomplete_submitted': True,
+
+        'incomplete_submitted_at': datetime.now().isoformat()
+
+    }).eq('id', task_id).execute()
+
+    flash('Incomplete task reason submitted.')
+
+    return redirect(url_for('sales_tasks'))
     
 @app.route('/sales/complete_task/<task_id>')
 @login_required('sales')
@@ -740,6 +800,195 @@ def add_daily_task():
     flash('Daily task assigned successfully.')
 
     return redirect(url_for('admin_tasks'))
+
+# ================================
+# SALES REPORTS MODULE
+# ================================
+
+@app.route('/sales/reports')
+@login_required('sales')
+def sales_reports():
+
+    uid = session['user_id']
+
+    reports = supabase.table('sales_daily_reports') \
+        .select('*, users!sales_daily_reports_sales_id_fkey(username)') \
+        .eq('sales_id', uid) \
+        .order('created_at', desc=True) \
+        .execute().data
+
+    return render_template(
+        'sales_reports.html',
+        reports=reports
+    )
+
+
+@app.route('/sales/add_report', methods=['GET', 'POST'])
+@login_required('sales')
+def add_report():
+
+    if request.method == 'POST':
+
+        supabase.table('sales_daily_reports').insert({
+
+            'sales_id': session['user_id'],
+
+            'total_calls': int(
+                request.form['total_calls']
+            ),
+
+            'total_emails': int(
+                request.form['total_emails']
+            ),
+
+            'total_whatsapp': int(
+                request.form['total_whatsapp']
+            ),
+
+            'positive_responses': int(
+                request.form['positive_responses']
+            ),
+
+            'negative_responses': int(
+                request.form['negative_responses']
+            ),
+
+            'clients_converted': int(
+                request.form['clients_converted']
+            ),
+
+            'leads_lost': int(
+                request.form['leads_lost']
+            ),
+
+            'lost_reason': request.form['lost_reason'],
+
+            'converted_reason': request.form['converted_reason']
+
+        }).execute()
+
+        flash('Daily sales report submitted successfully.')
+
+        return redirect(url_for('sales_reports'))
+
+    return render_template(
+        'add_report.html',
+        today_date=date.today().isoformat()
+    )
+
+
+@app.route('/sales/edit_report/<report_id>', methods=['GET', 'POST'])
+@login_required('sales')
+def edit_report(report_id):
+
+    report_res = supabase.table('sales_reports') \
+        .select('*') \
+        .eq('id', report_id) \
+        .execute()
+
+    if not report_res.data:
+        flash('Report not found.')
+        return redirect(url_for('sales_reports'))
+
+    report = report_res.data[0]
+
+    if request.method == 'POST':
+
+        supabase.table('sales_reports').update({
+
+            'task_name': request.form['task_name'],
+
+            'task_description': request.form['task_description'],
+
+            'client_name': request.form['client_name'],
+
+            'lead_source': request.form['lead_source'],
+
+            'meeting_type': request.form['meeting_type'],
+
+            'work_status': request.form['work_status'],
+
+            'priority': request.form['priority'],
+
+            'time_spent': request.form['time_spent'],
+
+            'outcome': request.form['outcome'],
+
+            'next_followup_date': request.form['next_followup_date'] or None,
+
+            'potential_amount': float(
+                request.form['potential_amount'] or 0
+            ),
+
+            'location': request.form['location']
+
+        }).eq('id', report_id).execute()
+
+        flash('Report updated successfully.')
+
+        return redirect(url_for('sales_reports'))
+
+    return render_template(
+        'edit_report.html',
+        report=report
+    )
+
+
+@app.route('/sales/delete_report/<report_id>')
+@login_required('sales')
+def delete_report(report_id):
+
+    supabase.table('sales_reports') \
+        .delete() \
+        .eq('id', report_id) \
+        .execute()
+
+    flash('Report deleted successfully.')
+
+    return redirect(url_for('sales_reports'))
+
+
+@app.route('/admin/reports')
+@login_required('admin')
+def admin_reports():
+
+    selected_sales = request.args.get('sales_person')
+
+    selected_date = request.args.get('date')
+
+    # GET ALL SALES USERS
+    sales_users = supabase.table('users') \
+        .select('id, username') \
+        .eq('role', 'sales') \
+        .execute().data
+
+    # BASE QUERY
+    query = supabase.table('sales_daily_reports') \
+        .select('*, users!sales_daily_reports_sales_id_fkey(username)')
+
+    # FILTER BY SALES PERSON
+    if selected_sales:
+        query = query.eq('sales_id', selected_sales)
+
+    # FILTER BY DATE
+    if selected_date:
+        query = query.eq('report_date', selected_date)
+
+    # FINAL REPORTS
+    reports = query \
+        .order('report_date', desc=True) \
+        .execute().data
+
+    return render_template(
+
+        'admin_reports.html',
+
+        reports=reports,
+
+        sales_users=sales_users
+
+    )
+
     
-if __name__ == '__main__': 
-    app.run(host='0.0.0.0', port=5000)
+if __name__ == '__main__':
+    app.run(debug=True)

@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+  :root {
+    --primary: #2563eb;
+    --primary-hover: #1d4ed8;
+    --bg: #f8fafc;
+    --card-bg: #ffffff;
+    --text: #1e293b;
+    --text-light: #64748b;
+    --border: #e2e8f0;
+    --focus-ring: rgba(37, 99, 235, 0.2);
+    --radius: 8px;
+  }
+
+  .report-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    background: var(--card-bg);
+    padding: 2rem;
+    border-radius: var(--radius);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  }
+
+  .report-container h2 {
+    margin: 0 0 1.5rem 0;
+    color: var(--text);
+    font-size: 1.5rem;
+    text-align: center;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.25rem;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .form-group.full-width {
+    grid-column: 1 / -1;
+  }
+
+  label {
+    font-weight: 500;
+    margin-bottom: 0.4rem;
+    color: var(--text);
+    font-size: 0.9rem;
+  }
+
+  input, select, textarea {
+    padding: 0.65rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 0.95rem;
+    background: #fff;
+    color: var(--text);
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--focus-ring);
+  }
+
+  .form-actions {
+    margin-top: 2rem;
+    text-align: center;
+  }
+
+  .btn-submit {
+    background: var(--primary);
+    color: white;
+    padding: 0.75rem 2rem;
+    border: none;
+    border-radius: var(--radius);
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+  }
+
+  .btn-submit:hover { background: var(--primary-hover); }
+  .btn-submit:active { transform: scale(0.98); }
+
+  @media (max-width: 600px) {
+    .report-container { margin: 1rem; padding: 1.25rem; }
+    .form-grid { grid-template-columns: 1fr; }
+  }
+</style>
+
+<div class="report-container">
+  <h2>Daily Sales Report</h2>
+  
+  <!-- Wrap in form tag if not already provided by base.html -->
+  <form method="POST" action="" class="report-form">
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="date">Date</label>
+        <input type="text"
+        class="form-control"
+        value="{{ today_date }}"
+        readonly>
+      </div>
+
+      <div class="form-group">
+
+        <label>Sales Person</label>
+
+        <input type="text"
+              class="form-control"
+              value="{{ session.username }}"
+              readonly>
+
+      </div>
+
+      <div class="form-group">
+        <label for="calls_made">Number of Calls Made</label>
+        <input type="number"
+          id="total_calls"
+          name="total_calls"
+          min="0"
+          value="0"
+          required>
+      </div>
+
+      <div class="form-group">
+        <label for="emails_sent">Number of Emails Sent</label>
+        <input type="number"
+          id="total_emails"
+          name="total_emails"
+          min="0"
+          value="0"
+          required>
+      </div>
+
+      <div class="form-group">
+        <label for="whatsapp_sent">Number of WhatsApp Messages Sent</label>
+        <input type="number"
+          id="total_whatsapp"
+          name="total_whatsapp"
+          min="0"
+          value="0"
+          required>
+      </div>
+
+      <div class="form-group">
+        <label for="positive_responses">Positive Responses</label>
+        <input type="number" id="positive_responses" name="positive_responses" min="0" required>
+      </div>
+
+      <div class="form-group">
+        <label for="negative_responses">Negative Responses</label>
+        <input type="number" id="negative_responses" name="negative_responses" min="0" required>
+      </div>
+
+      <div class="form-group">
+        <label for="clients_converted">Number of Clients Converted</label>
+        <input type="number" id="clients_converted" name="clients_converted" min="0" required>
+      </div>
+
+      <div class="form-group">
+        <label for="leads_lost">Number of Leads Lost</label>
+        <input type="number" id="leads_lost" name="leads_lost" min="0" required>
+      </div>
+
+      <div class="form-group full-width">
+        <label for="reason_lead_lost">Reason for Lead Lost</label>
+        <textarea id="lost_reason" name="lost_reason" rows="3" placeholder="Optional details..."></textarea>
+      </div>
+
+      <div class="form-group full-width">
+        <label for="reason_client_converted">Reason for Client Converted</label>
+        <textarea id="converted_reason" name="converted_reason" rows="3" placeholder="Optional details..."></textarea>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn-submit">Submit Report</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

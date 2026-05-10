@@ -130,13 +130,16 @@
     {% if tasks %}
         {% for task in tasks %}
         <div class="raw-task" 
-             data-id="{{ task.id }}"
-             data-title="{{ task.task_title }}"
-             data-desc="{{ task.task_description }}"
-             data-status="{{ 'completed' if task.is_completed else 'pending' }}"
-             data-priority="{{ task.priority }}"
-             data-date="{{ task.task_date }}"
-             data-person="{{ task.users.username }}">
+            data-id="{{ task.id }}"
+            data-title="{{ task.task_title }}"
+            data-desc="{{ task.task_description }}"
+            data-status="{{ 'completed' if task.is_completed else 'pending' }}"
+            data-priority="{{ task.priority }}"
+            data-date="{{ task.task_date }}"
+            data-person="{{ task.users.username }}"
+            data-incomplete-reason="{{ task.incomplete_reason or '' }}"
+            data-incomplete-submitted="{{ 'true' if task.incomplete_submitted else 'false' }}"
+            data-incomplete-time="{{ task.incomplete_submitted_at or '' }}">
         </div>
         {% endfor %}
     {% endif %}
@@ -749,6 +752,8 @@ document.addEventListener('DOMContentLoaded', () => {
                             <th>Description</th>
                             <th>Priority</th>
                             <th>Status</th>
+                            <th>Incomplete Reason</th>
+                            <th>Submitted At</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -764,9 +769,56 @@ document.addEventListener('DOMContentLoaded', () => {
                         <td data-label="Description" class="task-cell"><p>${task.dataset.desc}</p></td>
                         <td data-label="Priority"><span class="badge ${task.dataset.priority}">${task.dataset.priority.charAt(0).toUpperCase() + task.dataset.priority.slice(1)}</span></td>
                         <td data-label="Status">
+
                                 <span class="badge ${task.dataset.status}">
                                     ${task.dataset.status.charAt(0).toUpperCase() + task.dataset.status.slice(1)}
                                 </span>
+
+                            </td>
+
+                            <td data-label="Incomplete Reason">
+
+                                ${
+                                    task.dataset.incompleteSubmitted === 'true'
+
+                                    ?
+
+                                    `<div style="
+                                        background:#fef3c7;
+                                        border:1px solid #facc15;
+                                        color:#92400e;
+                                        padding:10px;
+                                        border-radius:8px;
+                                        font-size:13px;
+                                        line-height:1.5;
+                                        min-width:220px;
+                                    ">
+                                        ${task.dataset.incompleteReason}
+                                    </div>`
+
+                                    :
+
+                                    `<span style="color:#94a3b8;">-</span>`
+                                }
+
+                            </td>
+
+                            <td data-label="Submitted At">
+
+                                ${
+                                    task.dataset.incompleteTime
+
+                                    ?
+
+                                    task.dataset.incompleteTime
+                                        .replace('T', ' ')
+                                        .slice(0, 19)
+
+                                    :
+
+                                    '-'
+                                }
+
                             </td>
 
                             <td data-label="Action">

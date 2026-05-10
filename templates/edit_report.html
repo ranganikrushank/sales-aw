@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-5">
+
+    <div class="card shadow p-4">
+
+        <h2 class="mb-4">
+            Add Sales Report
+        </h2>
+
+        <form method="POST">
+
+            <div class="mb-3">
+                <label>Task Name</label>
+                <input type="text"
+                       name="task_name"
+                       class="form-control"
+                       required>
+            </div>
+
+            <div class="mb-3">
+                <label>Task Description</label>
+                <textarea name="task_description"
+                          class="form-control"></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label>Client Name</label>
+                <input type="text"
+                       name="client_name"
+                       class="form-control">
+            </div>
+
+            <div class="mb-3">
+                <label>Lead Source</label>
+                <select name="lead_source"
+                        class="form-control">
+
+                    <option>LinkedIn</option>
+                    <option>Google</option>
+                    <option>Facebook</option>
+                    <option>Referral</option>
+                    <option>Cold Calling</option>
+
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label>Meeting Type</label>
+                <select name="meeting_type"
+                        class="form-control">
+
+                    <option>Call</option>
+                    <option>Zoom Meeting</option>
+                    <option>Email</option>
+                    <option>WhatsApp</option>
+                    <option>Physical Meeting</option>
+
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label>Status</label>
+                <select name="work_status"
+                        class="form-control">
+
+                    <option>Completed</option>
+                    <option>Pending</option>
+                    <option>In Progress</option>
+
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label>Priority</label>
+                <select name="priority"
+                        class="form-control">
+
+                    <option>Low</option>
+                    <option>Medium</option>
+                    <option>High</option>
+                    <option>Urgent</option>
+
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label>Time Spent</label>
+                <input type="text"
+                       name="time_spent"
+                       class="form-control"
+                       placeholder="2 Hours">
+            </div>
+
+            <div class="mb-3">
+                <label>Outcome</label>
+                <textarea name="outcome"
+                          class="form-control"></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label>Next Followup Date</label>
+                <input type="date"
+                       name="next_followup_date"
+                       class="form-control">
+            </div>
+
+            <div class="mb-3">
+                <label>Potential Amount</label>
+                <input type="number"
+                       name="potential_amount"
+                       class="form-control">
+            </div>
+
+            <div class="mb-3">
+                <label>Location</label>
+                <input type="text"
+                       name="location"
+                       class="form-control">
+            </div>
+
+            <button type="submit"
+                    class="btn btn-primary">
+
+                Submit Report
+
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

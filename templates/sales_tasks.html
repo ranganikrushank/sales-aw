@@ -48,13 +48,24 @@
 <div id="raw-tasks" style="display:none;">
     {% if tasks %}
         {% for task in tasks %}
-        <div class="raw-task" 
-             data-id="{{ task.id }}"
-             data-title="{{ task.task_title }}"
-             data-desc="{{ task.task_description }}"
-             data-status="{{ 'completed' if task.is_completed else 'pending' }}"
-             data-priority="{{ task.priority }}"
-             data-date="{{ task.task_date }}">
+        <div class="raw-task"
+
+            data-id="{{ task.id }}"
+
+            data-title="{{ task.task_title }}"
+
+            data-desc="{{ task.task_description }}"
+
+            data-status="{{ 'completed' if task.is_completed else 'pending' }}"
+
+            data-priority="{{ task.priority }}"
+
+            data-date="{{ task.task_date }}"
+
+            data-incomplete-submitted="{{ 'true' if task.incomplete_submitted else 'false' }}"
+
+            data-incomplete-reason="{{ task.incomplete_reason or '' }}">
+
         </div>
         {% endfor %}
     {% endif %}
@@ -172,6 +183,86 @@
     }
     .btn-complete:hover { background: var(--success-hover); }
 
+    .btn-reason {
+
+        display: inline-flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        padding: 0.4rem 0.8rem;
+
+        background: var(--danger);
+
+        color: white;
+
+        border: none;
+
+        border-radius: 6px;
+
+        font-weight: 600;
+
+        font-size: 0.75rem;
+
+        cursor: pointer;
+
+        transition: background 0.2s;
+
+        margin-top: 0.5rem;
+
+    }
+
+    .btn-reason:hover {
+
+        background: #dc2626;
+
+    }
+
+    .reason-box {
+
+        margin-top: 0.75rem;
+
+    }
+
+    .reason-box textarea {
+
+        width: 100%;
+
+        min-height: 80px;
+
+        border: 1px solid var(--border);
+
+        border-radius: 8px;
+
+        padding: 0.75rem;
+
+        resize: vertical;
+
+        font-size: 0.85rem;
+
+    }
+
+    .reason-submitted {
+
+        margin-top: 0.5rem;
+
+        background: #fef3c7;
+
+        border: 1px solid #facc15;
+
+        color: #92400e;
+
+        padding: 0.75rem;
+
+        border-radius: 8px;
+
+        font-size: 0.85rem;
+
+        line-height: 1.5;
+
+    }
+
     .empty-state, .loading-state {
         text-align: center; padding: 3rem 1rem; background: var(--card);
         border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid var(--border);
@@ -267,6 +358,38 @@ document.addEventListener('DOMContentLoaded', () => {
             groupEl.appendChild(tableWrapper);
 
             tasksInDate.forEach(task => {
+
+                const now = new Date();
+
+                const taskDate = new Date(task.dataset.date);
+
+                /*
+                START:
+                Task Date 10:00 PM
+                */
+
+                const reasonStart = new Date(taskDate);
+
+                reasonStart.setHours(22, 0, 0, 0);
+
+                /*
+                END:
+                Next Day 11:00 AM
+                */
+
+                const reasonEnd = new Date(taskDate);
+
+                reasonEnd.setDate(reasonEnd.getDate() + 1);
+
+                reasonEnd.setHours(11, 0, 0, 0);
+
+                /*
+                FINAL CHECK
+                */
+
+                const allowReasonSubmission =
+                    now >= reasonStart &&
+                    now <= reasonEnd;
                 const isCompleted = task.dataset.status === 'completed';
                 const row = document.createElement('tr');
                 if (isCompleted) row.classList.add('completed-row');
@@ -283,7 +406,68 @@ document.addEventListener('DOMContentLoaded', () => {
                         <span class="badge ${task.dataset.status}">${task.dataset.status.charAt(0).toUpperCase() + task.dataset.status.slice(1)}</span>
                     </td>
                     <td style="text-align:right">
-                        ${!isCompleted ? `<a href="/sales/complete_task/${task.dataset.id}" class="btn-complete">Mark Done</a>` : '<span style="color:#10b981; font-size:0.8rem; font-weight:600;">✓ Done</span>'}
+
+                        ${!isCompleted ? `
+
+                            <a href="/sales/complete_task/${task.dataset.id}"
+                            class="btn-complete">
+
+                            Mark Done
+
+                            </a>
+
+                            ${allowReasonSubmission ? `
+
+                                ${task.dataset.incompleteSubmitted === 'true'
+
+                                    ?
+
+                                    `<div class="reason-submitted">
+
+                                        <strong>Reason Submitted:</strong><br>
+
+                                        ${task.dataset.incompleteReason}
+
+                                    </div>`
+
+                                    :
+
+                                    `<form method="POST"
+                                        action="/sales/incomplete_task/${task.dataset.id}"
+                                        class="reason-box">
+
+                                        <textarea
+                                            name="incomplete_reason"
+                                            placeholder="Write reason for incomplete task..."
+                                            required></textarea>
+
+                                        <button type="submit"
+                                                class="btn-reason">
+
+                                            Submit Reason
+
+                                        </button>
+
+                                    </form>`
+
+                                }
+
+                            ` : ''}
+
+                        `
+
+                        :
+
+                        `<span style="color:#10b981;
+                                    font-size:0.8rem;
+                                    font-weight:600;">
+
+                            ✓ Done
+
+                        </span>`
+
+                        }
+
                     </td>
                 `;
                 table.querySelector('tbody').appendChild(row);
