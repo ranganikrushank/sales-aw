@@ -137,8 +137,8 @@
             data-priority="{{ task.priority }}"
             data-date="{{ task.task_date }}"
             data-person="{{ task.users.username }}"
-            data-incomplete-reason="{{ task.incomplete_reason or '' }}"
-            data-incomplete-submitted="{{ 'true' if task.incomplete_submitted else 'false' }}"
+            data-incomplete-reason="{{ (task.incomplete_reason or '') | e }}"
+            data-incomplete-submitted="{{ task.incomplete_submitted|string|lower }}"
             data-incomplete-time="{{ task.incomplete_submitted_at or '' }}">
         </div>
         {% endfor %}
@@ -779,7 +779,8 @@ document.addEventListener('DOMContentLoaded', () => {
                             <td data-label="Incomplete Reason">
 
                                 ${
-                                    task.dataset.incompleteSubmitted === 'true'
+                                    String(task.dataset.incompleteSubmitted).toLowerCase() === 'true'
+                                    && task.dataset.incompleteReason.trim() !== ''
 
                                     ?
 
@@ -792,13 +793,15 @@ document.addEventListener('DOMContentLoaded', () => {
                                         font-size:13px;
                                         line-height:1.5;
                                         min-width:220px;
+                                        white-space:pre-wrap;
+                                        word-break:break-word;
                                     ">
                                         ${task.dataset.incompleteReason}
                                     </div>`
 
                                     :
 
-                                    `<span style="color:#94a3b8;">-</span>`
+                                    `<span style="color:#94a3b8;">No Reason Submitted</span>`
                                 }
 
                             </td>

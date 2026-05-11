@@ -164,7 +164,7 @@ def admin_tasks():
         .execute().data
 
     tasks = supabase.table('daily_tasks') \
-        .select('*, users!daily_tasks_sales_id_fkey(username)') \
+        .select('id, sales_id, task_title, task_description, priority, task_date, is_completed, incomplete_reason, incomplete_submitted, incomplete_submitted_at, users!daily_tasks_sales_id_fkey(username)') \
         .order('created_at', desc=True) \
         .execute().data
 
