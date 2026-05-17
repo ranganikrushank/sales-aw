@@ -187,11 +187,11 @@
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
         <div class="al-field">
           <label class="al-label" for="email">Email *</label>
-          <input type="email" id="email" name="email" class="al-input" placeholder="contact@acme.com" required>
+          <input type="email" id="email" name="email" class="al-input" placeholder="contact@atlanciaworldwide.com" required>
         </div>
         <div class="al-field">
           <label class="al-label" for="phone">Phone *</label>
-          <input type="tel" id="phone" name="phone" class="al-input" placeholder="+1 (555) 123-4567" required>
+          <input type="tel" id="phone" name="phone" class="al-input" placeholder="+91 777 8888 578" required>
         </div>
         <div class="al-field">
             <label class="al-label" for="country">Country *</label>
@@ -212,7 +212,7 @@
               id="city"
               name="city"
               class="al-input"
-              placeholder="Bangalore"
+              placeholder="Surat"
               required
           >
       </div>
@@ -220,56 +220,180 @@
       <!-- Platform of Finding -->
       <div class="al-field">
         <label class="al-label">Platform of Finding *</label>
+
         <div class="al-pill-group">
+
           <label class="al-pill">
-            <input type="radio" name="platform" value="LinkedIn" required> LinkedIn
+            <input type="radio" name="platform" value="LinkedIn" required>
+            LinkedIn
           </label>
+
           <label class="al-pill">
-            <input type="radio" name="platform" value="Referral"> Referral
+            <input type="radio" name="platform" value="Website">
+            Website
           </label>
+
           <label class="al-pill">
-            <input type="radio" name="platform" value="Cold Call"> Cold Call
+            <input type="radio" name="platform" value="PA App">
+            PA App
           </label>
+
           <label class="al-pill">
-            <input type="radio" name="platform" value="Website"> Website
+            <input type="radio" name="platform" value="Instagram">
+            Instagram
           </label>
+
+          <label class="al-pill">
+            <input type="radio" name="platform" value="Facebook">
+            Facebook
+          </label>
+
+          <label class="al-pill">
+            <input type="radio" name="platform" value="Meta Ads">
+            Meta Ads
+          </label>
+
+          <label class="al-pill">
+            <input type="radio" name="platform" value="WhatsApp Ad">
+            WhatsApp Ad
+          </label>
+
+          <label class="al-pill">
+            <input type="radio" name="platform" value="Referral">
+            Referral
+          </label>
+
+          <label class="al-pill">
+            <input type="radio" name="platform" value="Cold Call">
+            Cold Call
+          </label>
+
+          <label class="al-pill">
+            <input type="radio" name="platform" value="Cold Email">
+            Cold Email
+          </label>
+
+          <label class="al-pill">
+            <input type="radio" name="platform" value="Other">
+            Other
+          </label>
+
         </div>
       </div>
 
       <!-- Business Sector -->
       <div class="al-field">
-        <label class="al-label">Business Sector *</label>
+
+        <label class="al-label">
+          Business Sectors *
+        </label>
+
         <div class="al-pill-group">
+
           <label class="al-pill">
-            <input type="radio" name="sector" value="Tech" required> Tech
+            <input type="checkbox" name="sector" value="Manufacturing">
+            Manufacturing
           </label>
+
           <label class="al-pill">
-            <input type="radio" name="sector" value="Healthcare"> Healthcare
+            <input type="checkbox" name="sector" value="Retailer">
+            Retailer
           </label>
+
           <label class="al-pill">
-            <input type="radio" name="sector" value="Retail"> Retail
+            <input type="checkbox" name="sector" value="Wholesaler / Distributor">
+            Wholesaler / Distributor
           </label>
+
           <label class="al-pill">
-            <input type="radio" name="sector" value="Finance"> Finance
+            <input type="checkbox" name="sector" value="Importer">
+            Importer
           </label>
+
+          <label class="al-pill">
+            <input type="checkbox" name="sector" value="Exporter">
+            Exporter
+          </label>
+
+          <label class="al-pill">
+            <input type="checkbox" name="sector" value="Healthcare">
+            Healthcare
+          </label>
+
+          <label class="al-pill">
+            <input type="checkbox" name="sector" value="Hotel / Restaurant">
+            Hotel / Restaurant
+          </label>
+
+          <label class="al-pill">
+            <input type="checkbox" name="sector" value="School / Teaching Institute">
+            School / Teaching Institute
+          </label>
+
+          <label class="al-pill">
+            <input type="checkbox" name="sector" value="Finance">
+            Finance
+          </label>
+
+          <label class="al-pill">
+            <input type="checkbox" name="sector" value="Real Estate">
+            Real Estate
+          </label>
+
+          <label class="al-pill">
+            <input type="checkbox" name="sector" value="Construction">
+            Construction
+          </label>
+
         </div>
+
+        <span class="al-hint">
+          Select one or multiple business sectors
+        </span>
+
       </div>
 
-      <!-- Services Needed (Multi-select) -->
+      <!-- Services Needed (Checkboxes) -->
       <div class="al-field">
         <label class="al-label">Services Needed *</label>
-        <div class="al-multiselect">
-          <select id="services" name="services" class="al-select" multiple size="4">
-            <option value="Website Development">Website Development</option>
-            <option value="Custom Software Development">Custom Software Development</option>
-            <option value="App Development">App Development</option>
-            <option value="AI Software & AI Agents">AI Software & AI Agents</option>
-            <option value="E Commerce Website">E Commerce Website</option>
-            <option value="WhatsApp Automation">WhatsApp Automation</option>
-          </select>
-          <span class="al-hint">Hold Ctrl/Cmd to select multiple</span>
-          <div class="al-tags" id="selected-tags"></div>
+
+        <div class="al-pill-group">
+
+          <label class="al-pill">
+            <input type="checkbox" name="services" value="Website Development">
+            Website Development
+          </label>
+
+          <label class="al-pill">
+            <input type="checkbox" name="services" value="Custom Software Development">
+            Custom Software Development
+          </label>
+
+          <label class="al-pill">
+            <input type="checkbox" name="services" value="App Development">
+            App Development
+          </label>
+
+          <label class="al-pill">
+            <input type="checkbox" name="services" value="AI Software & AI Agents">
+            AI Software & AI Agents
+          </label>
+
+          <label class="al-pill">
+            <input type="checkbox" name="services" value="E Commerce Website">
+            E Commerce Website
+          </label>
+
+          <label class="al-pill">
+            <input type="checkbox" name="services" value="WhatsApp Automation">
+            WhatsApp Automation
+          </label>
+
         </div>
+
+        <span class="al-hint">
+          You can select multiple services easily
+        </span>
       </div>
 
       <!-- Follow-up Date -->
@@ -322,5 +446,44 @@
     select.addEventListener('change', updateTags);
     updateTags(); // Initial render
   });
+
+  // Sector Multi Select Tags
+  const sectorSelect = document.getElementById('sector');
+  const sectorTags = document.getElementById('sector-tags');
+
+  function updateSectorTags() {
+
+    sectorTags.innerHTML = '';
+
+    Array.from(sectorSelect.selectedOptions).forEach(option => {
+
+      const tag = document.createElement('span');
+
+      tag.className = 'al-tag';
+
+      tag.innerHTML = `
+        ${option.value}
+        <button type="button">&times;</button>
+      `;
+
+      tag.querySelector('button').onclick = () => {
+
+        option.selected = false;
+
+        updateSectorTags();
+
+      };
+
+      sectorTags.appendChild(tag);
+
+    });
+
+  }
+
+  sectorSelect.addEventListener('change', updateSectorTags);
+
+  updateSectorTags();
 </script>
+
+
 {% endblock %}

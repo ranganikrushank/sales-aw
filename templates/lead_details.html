@@ -242,7 +242,11 @@
       <div class="sl-card">
         <div class="sl-card-header"><h2>Add New Follow Up</h2></div>
         <div class="sl-card-body">
-          <form class="sl-form" action="#" method="POST">
+          <form 
+            class="sl-form" 
+            action="{{ url_for('add_followup', lead_id=lead.id) }}" 
+            method="POST"
+          >
             <div class="sl-field">
               <label class="sl-label" for="followup_date">Follow Up Date</label>
               <input type="date" id="followup_date" name="followup_date" class="sl-input" required>

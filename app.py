@@ -345,7 +345,7 @@ def sales_add_lead():
             'sales_id': session['user_id'], 'company_name': request.form['company_name'],
             'email': request.form['email'], 'phone': request.form['phone'],
             'platform': request.form['platform'], 'country': request.form['country'],
-            'services': services, 'sector': request.form['sector'],
+            'services': services, 'sector': request.form.getlist('sector'),
             'follow_up_date': request.form['follow_up_date'] or None
         }]).execute()
         flash('Lead added successfully!')
@@ -711,7 +711,7 @@ def edit_lead(lead_id):
             'phone': request.form['phone'],
             'platform': request.form['platform'],
             'country': request.form['country'],
-            'sector': request.form['sector'],
+            'sector': request.form.getlist('sector'),
             'services': services,
             'follow_up_date': request.form['follow_up_date'],
             'follow_up_notes': request.form['follow_up_notes']
@@ -990,5 +990,5 @@ def admin_reports():
     )
 
     
-if __name__ == '__main__': 
-    app.run(host='0.0.0.0', port=5000)
+if __name__ == '__main__':
+    app.run(debug=True)
