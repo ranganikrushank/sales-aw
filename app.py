@@ -1,9 +1,12 @@
 import os
-from datetime import datetime, date
-from flask import Flask, render_template, request, redirect, url_for, session, flash
-from werkzeug.security import generate_password_hash, check_password_hash
-from supabase import create_client, Client
+from datetime import date, datetime
+from zoneinfo import ZoneInfo
+
 from dotenv import load_dotenv
+from flask import (Flask, flash, redirect, render_template, request, session,
+                   url_for)
+from supabase import Client, create_client
+from werkzeug.security import check_password_hash, generate_password_hash
 
 load_dotenv()
 
@@ -121,7 +124,9 @@ def sales_dashboard():
     )
 
     # DAILY TASKS
-    today = date.today().isoformat()
+    today = datetime.now(
+    ZoneInfo("Asia/Kolkata")
+).date().isoformat()
 
     daily_tasks = supabase.table('daily_tasks') \
         .select('*') \
@@ -180,7 +185,9 @@ def sales_tasks():
 
     uid = session['user_id']
 
-    today = date.today().isoformat()
+    today = datetime.now(
+    ZoneInfo("Asia/Kolkata")
+).date().isoformat()
     
     current_hour = datetime.now().hour
 
@@ -272,7 +279,9 @@ def complete_task(task_id):
 
     task = task_res.data[0]
 
-    today = date.today().isoformat()
+    today = datetime.now(
+    ZoneInfo("Asia/Kolkata")
+).date().isoformat()
 
     if task['task_date'] > today:
         flash('Future tasks cannot be completed yet.')
